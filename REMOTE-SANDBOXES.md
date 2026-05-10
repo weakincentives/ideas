@@ -1,11 +1,11 @@
 # Sandboxed Runtimes
 
-Production agent systems assume the harness runs in a remote sandbox, not
-inside the application process.
+Production agent systems usually run the harness in a remote sandbox, not inside
+the application process.
 
-## Topology
+## Shape
 
-The usual topology has four pieces.
+The usual shape has four pieces.
 
 ```
 Application / Orchestrator
@@ -23,52 +23,51 @@ Model-Harness Runtime
 Remote Workspace
 ```
 
-The implementation may collapse pieces for local development, but the contract
-still behaves as if the boundary is remote.
+Local development may collapse pieces, but the rules still behave as if the
+harness and workspace are remote.
 
 ## Orchestrator
 
 The orchestrator owns the definition and caller-visible work identity. It
 renders prompts, declares tools, fulfills definition tool calls, evaluates
-policies that live in the definition layer, records application-level events,
-and decides when to start, retry, reattach, or abandon work.
+definition policies, records application-level events, and decides when to
+start, retry, reattach, or abandon work.
 
-The orchestrator does not require direct access to sandbox-local paths or
+The orchestrator does not need direct access to sandbox-local paths or
 processes.
 
 ## Sandbox Control Plane
 
-The control plane owns sandbox lifecycle and protocol state. It starts and
-stops compute, mounts workspaces, authenticates callers, routes messages,
-tracks active turns, stores durable ledgers, enforces sandbox policy, and
-mediates reconnect.
+The control plane owns sandbox lifecycle and protocol state. It starts and stops
+compute, mounts workspaces, authenticates callers, routes messages, tracks
+active turns, stores durable ledgers, enforces sandbox policy, and handles
+reconnect.
 
-Control-plane state is not the same as definition state. A good design keeps at
-least four tiers separate:
+Control-plane state is not definition state. A clear design keeps these records
+separate:
 
-- definition and session state owned by the caller-facing framework
-- durable control-plane records such as runtime, thread, and turn ledgers
-- live routing state needed to connect harness adapters, tool requests, and
-  harnesses
+- definition and session state owned by the caller-facing library
+- durable control-plane records for runtimes, threads, and turns
+- live routing state for harness adapters, tool requests, and harnesses
 - persistent workspace state in remote storage
 
 ## Model-Harness Runtime
 
 The model-harness runtime owns model calls, planning loop, built-in tools, edit
-behavior, provider traffic, approval modes, and runtime recovery. It may be a
-CLI harness, service-hosted harness, protocol-compatible agent runtime, or
-something not yet designed.
+behavior, provider traffic, approvals, and recovery. It may be a CLI harness, a
+hosted harness, a protocol-compatible agent runtime, or something not yet
+designed.
 
 The runtime can sit behind a stable sandbox protocol without being treated as
-behaviorally identical to other harnesses. Harness adapters absorb those
-differences and make them explicit.
+identical to other harnesses. Harness adapters absorb the differences and make
+them explicit.
 
-The definition library does not assume the harness can call in-process functions
-or read local files from the orchestrator.
+The definition library does not assume the harness can call in-process
+functions or read local files from the orchestrator.
 
-## Protocol Surface
+## Protocol Shape
 
-A portable sandbox protocol needs operations for:
+A sandbox protocol needs operations for:
 
 - start sandbox
 - stop sandbox
@@ -99,11 +98,11 @@ Remote sandboxes default to restricted network access.
 - Setup-time network access is explicit and auditable.
 - Broad network access is an exception, not the default runtime mode.
 
-This makes the protocol capability-oriented rather than network-oriented.
+This makes the protocol tool-oriented rather than network-oriented.
 
 ## Local Mode
 
-Local mode supports tests and development. It emulates the same protocol rules:
+Local mode supports tests and development. It follows the same rules:
 
 - caller-owned work IDs
 - work contract conflicts
@@ -112,5 +111,5 @@ Local mode supports tests and development. It emulates the same protocol rules:
 - tool request and completion messages
 - reconnect behavior where practical
 
-Avoid writing a local path based implementation that later needs a different
-remote architecture.
+Avoid writing a local-path implementation that later needs a different remote
+design.

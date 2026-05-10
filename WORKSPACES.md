@@ -1,8 +1,8 @@
 # Workspaces
 
-The workspace is the agent's durable data plane. It is where the harness reads
-and writes files, where long-running work leaves outputs, and where future turns
-can resume context after compute restarts.
+The workspace is the remote filesystem the agent uses while it works. The
+harness reads and writes files there, long-running work leaves outputs there,
+and future turns resume from it after compute restarts.
 
 ## Model
 
@@ -26,14 +26,14 @@ The public protocol uses sandbox-relative paths. The sandbox validates paths and
 prevents traversal outside the workspace. The orchestrator does not ask for host
 paths such as `/etc/passwd`, and does not expect sandbox paths to exist locally.
 
-Recommended properties:
+Useful properties:
 
 - path-addressed operations
 - no cross-call file handles
 - streaming reads and writes
-- content-type and size metadata for uploads
+- content type and size metadata for uploads
 - explicit binary and text APIs
-- deterministic overwrite behavior
+- predictable overwrite behavior
 - typed errors for missing path, conflict, permission denial, and quota
 
 ## Staging
@@ -51,7 +51,7 @@ the data path does not require buffering through the control channel.
 
 ## Persistence and Cleanup
 
-Durable workspace data and evaluation-scoped scratch data are different.
+Durable workspace data and scratch data are different.
 
 Durable data includes source checkout, outputs, persistent notes, generated
 files, and work-in-progress that future turns need.
@@ -84,16 +84,16 @@ cannot honestly claim rollback.
 
 ## Workspace Identity
 
-Workspace identity composes tenant, sandbox, repository or project, and
-caller-owned work identifiers. The exact tuple is platform-specific, but the
-property is not: two tenants must not collide, and two independent units of work
-do not accidentally share mutable files.
+Workspace identity combines tenant, sandbox, repository or project, and
+caller-owned work names. The exact tuple is platform-specific, but the required
+property is simple: two tenants must not collide, and two independent units of
+work do not accidentally share mutable files.
 
 Shared workspaces are allowed when explicitly declared. Sharing is part of the
-contract, not an accident of path reuse.
+work contract, not an accident of path reuse.
 
-## Skills and Runtime Assets
+## Skills and Runtime Files
 
-Skill bundles, helper scripts, and runtime assets are uploaded or mounted
-through the same workspace-aware protocol. The sandbox does not assume it can
-read them from the orchestrator's local disk.
+Skill bundles, helper scripts, and runtime files are uploaded or mounted through
+the same workspace-aware protocol. The sandbox does not assume it can read them
+from the orchestrator's local disk.

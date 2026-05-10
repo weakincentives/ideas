@@ -1,14 +1,13 @@
 # Durable Work
 
-Durable work is the set of rules that make long-running agent operations safe
-under retry, reconnect, and sandbox restart.
+Durable work is named work that survives retry, reconnect, and sandbox restart.
 
 ## Three Lifecycles
 
 Keep these lifecycles separate.
 
-**Compute lifecycle.** A sandbox or harness process starts, sleeps, restarts,
-or stops.
+**Compute lifecycle.** A sandbox or harness process starts, sleeps, restarts, or
+stops.
 
 **Work lifecycle.** A caller-named session, thread, turn, or evaluation exists,
 accumulates state, reaches a terminal result, or is deleted.
@@ -55,11 +54,11 @@ usually make the same turn conflict with itself.
 
 ## Idempotent Start
 
-Starting work with the same public identifier and same work contract returns
-the current or completed work. It must not double-execute.
+Starting work with the same public identifier and same work contract returns the
+current or completed work. It must not double-execute.
 
-Starting work with the same identifier and a different work contract returns
-an explicit conflict.
+Starting work with the same identifier and a different work contract returns an
+explicit conflict.
 
 Starting work with a different identifier is new work, even if the content is
 identical.
@@ -77,8 +76,8 @@ grace window. Reattach returns enough state for the caller to resume:
 - workspace reference
 - conflict or ownership status
 
-The exact timeout is an operational choice. The requirement is that
-transient transport failure does not force duplicate work.
+The exact timeout is an operational choice. The requirement is that transient
+transport failure does not force duplicate work.
 
 ## Tool Requests
 
@@ -90,7 +89,7 @@ resubmitting the same tool result after reconnect is accepted or safely
 deduplicated.
 
 If the caller never reconnects, pending tool calls fail with a typed reason, and
-the turn reaches a forensics-friendly terminal state.
+the turn reaches a terminal state that can be inspected later.
 
 ## Ownership
 

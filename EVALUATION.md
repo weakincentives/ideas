@@ -1,7 +1,6 @@
 # Evaluation and Contract Tests
 
-Agent definition libraries need evaluation support because prompt and tool
-design are empirical. Iteration still needs rigor.
+Prompt and tool design need measurement. Evaluation keeps iteration honest.
 
 ## Agent Loop
 
@@ -17,8 +16,8 @@ An agent loop runs one unit of work from definition to result. It:
 - runs completion checks
 - returns typed output or typed terminal error
 
-The loop is application orchestration. The harness still owns the model act
-loop.
+This loop belongs to application orchestration. The harness still owns the model
+act loop.
 
 ## Eval Loop
 
@@ -35,12 +34,12 @@ An eval loop runs many agent-loop instances against a dataset. It tracks:
 - random seeds or time injection settings
 - result metrics
 
-Evaluations are repeatable enough to compare changes while accepting that model
-behavior may still vary.
+Evaluations should be repeatable enough to compare changes while accepting that
+model behavior may still vary.
 
 ## Datasets
 
-Datasets are versioned assets, not loose collections of prompts. Each case
+Datasets are versioned inputs, not loose collections of prompts. Each case
 defines:
 
 - input
@@ -56,11 +55,11 @@ production. Local fixture directories are only source material.
 
 ## Evaluators
 
-Evaluators are typed functions over run records. They may inspect final
-output, event history, workspace state, tool calls, or debug bundle data.
+Evaluators are typed functions over run records. They may inspect final output,
+event history, workspace state, tool calls, or debug bundle data.
 
 LLM-as-judge evaluators record their own model, prompt, rubric, thresholds, and
-raw output. They can help, but they are not inherently authoritative.
+raw output. They can help, but they do not get special authority.
 
 ## Prompt Overrides
 
@@ -81,8 +80,8 @@ Eval reports include:
 - budget summaries
 - representative transcripts
 - links or references to debug bundles
-- integration contract test failures
+- contract test failures
 
-The report makes it obvious whether worse behavior came from definition changes,
-harness adapter behavior, skill changes, harness behavior, model behavior, or
-sandbox infrastructure.
+The report should make it clear whether worse behavior came from definition
+changes, harness adapter behavior, skill changes, harness behavior, model
+behavior, or sandbox infrastructure.

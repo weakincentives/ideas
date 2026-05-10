@@ -1,31 +1,31 @@
-# Operational Evidence
+# Run Records
 
-Every run needs enough evidence to reconstruct what happened. A run that cannot
-be reconstructed was not really observed.
+Every run needs enough records to reconstruct what happened. A run that cannot
+be reconstructed was not observed in any useful sense.
 
-## Required Artifacts
+## Required Records
 
-A robust system emits:
+A useful system records:
 
 - rendered definition and prompt hash
 - declared tool schemas
 - policy decisions
 - feedback records
 - tool request and completion records
-- built-in harness event records
-- workspace upload and mutation records
+- built-in harness events
+- workspace uploads and mutations
 - transaction snapshot, commit, and rollback records
 - completion check records
 - final output or terminal error
 - budget and deadline records
-- trace identifiers across protocol boundaries
+- trace identifiers across process boundaries
 
 These records use caller-owned work identifiers.
 
 ## Standard Events
 
-Harnesses emit different event streams. Harness adapters normalize them into a
-standard event envelope while preserving raw event references for debugging.
+Harnesses emit different event streams. Harness adapters convert them into a
+standard event shape while preserving raw event references for debugging.
 
 A standard event includes:
 
@@ -70,8 +70,8 @@ A debug bundle contains enough to reproduce or explain a run:
 - tool schemas and tool results
 - terminal error chain
 
-Bundles avoid embedding secrets. References to remote files or records are
-acceptable when retention and access are clear.
+Bundles avoid embedding secrets. References to remote files or records are fine
+when retention and access are clear.
 
 ## Trace Propagation
 

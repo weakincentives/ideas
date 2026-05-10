@@ -1,7 +1,7 @@
 # State, Transactions, and Idempotency
 
-State is the durable memory of a run. Transactions are scoped guarantees about
-which mutations survive failure. Both need clear boundaries.
+State is the durable memory of a run. Transactions say which changes survive
+failure. Both need clear limits.
 
 ## Session State
 
@@ -24,7 +24,7 @@ They do not call the network, read the clock, or mutate files.
 ## Event Log
 
 Events are append-only evidence. They record what happened even when state rolls
-back. A failed tool call may leave no committed state mutation, but the failure
+back. A failed tool call may leave no committed state change, but the failure
 event itself remains.
 
 Useful event families include:
@@ -55,12 +55,12 @@ Resources are scoped:
 - tool call
 - evaluation
 
-Snapshotable resources may participate in transaction rollback. Non-snapshotable
-resources need idempotency keys or compensating actions.
+Snapshotable resources may participate in transaction rollback. Other resources
+need idempotency keys or compensating actions.
 
 ## Transaction Scope
 
-A transaction can only cover state the framework controls.
+A transaction can only cover state the definition library controls.
 
 Covered:
 
@@ -68,7 +68,7 @@ Covered:
 - snapshotable resources
 - remote filesystem mutations when the sandbox protocol supports snapshot and
   restore around the operation
-- definition tools routed through the framework's transaction bridge
+- definition tools routed through the definition library's transaction bridge
 
 Not automatically covered:
 
@@ -96,20 +96,20 @@ The agent sees a tool result, not transaction machinery.
 
 ## Request Idempotency
 
-Transactionality inside a turn is not enough. The turn itself needs
-idempotency. A durable request is identified by:
+Transactionality inside a turn is not enough. The turn itself needs idempotency.
+A durable request is identified by:
 
 - caller-owned work identifier
 - caller-owned turn identifier
 - work contract hash
 
-The work contract includes inputs and declarations that change model
-behavior: prompt hash, tool schemas, model settings, structured output schema,
-workspace reference, and relevant policy configuration.
+The work contract includes inputs and declarations that change model behavior:
+prompt hash, tool schemas, model settings, structured output schema, workspace
+reference, and relevant policy configuration.
 
-Operational envelope values such as wait timeout or client connection deadline
-belong in the work contract only when they alter sandbox behavior. Otherwise
-they are retry parameters, not a reason to create a conflict.
+Operational values such as wait timeout or client connection deadline belong in
+the work contract only when they alter sandbox behavior. Otherwise they are
+retry parameters, not a reason to create a conflict.
 
 ## Built-In Tool Limits
 

@@ -1,16 +1,16 @@
 # Skills and Runtime Assets
 
-Skills are versioned integration assets for model-harness runtimes. They
-package the operating knowledge a harness needs in order to use a repository,
-workflow, domain, or tool correctly.
+A skill packages operating knowledge for a model-harness runtime. It teaches the
+harness how to use a repository, workflow, domain, or tool correctly.
 
 ## Why Skills Matter
 
 If the model and harness are trained and evaluated together, the shape of the
-context matters. A harness may have conventions for skill discovery, file
-layout, manifests, scripts, examples, tool descriptions, and runtime assets.
-Good harness adapters feed those conventions rather than flatten every harness
-into generic prompt text.
+context matters. A harness may have its own rules for finding skills, mounting
+files, reading manifests, running helper scripts, and showing examples.
+
+Good harness adapters feed those rules. They do not flatten every skill into a
+generic prompt block.
 
 Skills are one of the main places application teams spend effort. They turn
 local operating knowledge into reusable, testable harness input.
@@ -29,17 +29,17 @@ A skill may contain:
 - test fixtures
 - manifest metadata
 - references to required definition tools
-- runtime assets that must be uploaded to the sandbox
+- runtime files that must be uploaded to the sandbox
 
-The exact packaging format is harness-specific. The design requirement is that
-the harness adapter can stage, mount, version, observe, and test the skill.
+The packaging format is harness-specific. The important requirement is that the
+harness adapter can stage, mount, version, observe, and test the skill.
 
-## Skill Boundary
+## Skills and Tools
 
 Skills explain how to operate. Tools perform application side effects.
 
 A skill can tell the harness when and how to call a tool. The tool still needs a
-typed schema, policy, result contract, and idempotency behavior.
+typed schema, policy, result shape, and idempotency behavior.
 
 A skill can include scripts or helper files. If those scripts mutate the
 workspace or call the network, the harness adapter and sandbox policy make that
@@ -47,8 +47,8 @@ visible.
 
 ## Remote Staging
 
-In production, skills are not read from the caller's local disk by the harness.
-They are staged into the remote sandbox or referenced through a protocol the
+In production, the harness does not read skills from the caller's local disk.
+Skills are staged into the remote sandbox or referenced through a protocol the
 sandbox can resolve.
 
 Skill staging records:
@@ -67,7 +67,7 @@ This makes a run explainable after the local checkout has moved on.
 
 ## Evaluation
 
-Skills are tested as part of the integration contract tests. Tests cover:
+Skills are tested with the rest of the integration layer. Tests cover:
 
 - discovery
 - staging

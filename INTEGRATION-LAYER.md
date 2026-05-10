@@ -1,173 +1,163 @@
 # Integration Layer
 
-The integration layer binds application-owned definitions, tools, skills, and
-work identifiers to model-harness runtimes and sandbox protocols. It is where
-portable application behavior meets harness-specific behavior.
+The integration layer connects an agent definition to a real harness, sandbox,
+workspace, tools, skills, and event stream.
 
-`Harness adapter` names the harness-specific part of that layer. It is not the
-architecture. It is the component that translates the shared integration
-contract into one harness's prompt shape, built-in tools, event stream, skill
-format, approval behavior, structured output support, and error behavior.
+A harness adapter is the harness-specific part of that layer. It knows how one
+harness wants prompts, tools, skills, approvals, structured output, errors, and
+events to look. It does not hide differences between harnesses. It makes them
+clear enough to test.
 
-## Why the Layer Matters
+## Why It Exists
 
-Agentic harnesses are opinionated execution environments. Their models are
-trained and evaluated with assumptions about tools, files, edit loops, approval
-modes, transcripts, and recovery. A definition library preserves those
-assumptions instead of flattening the harness into a generic loop.
+A harness is not a neutral shell around a model. The model is trained and
+evaluated with the harness's tools, edit loop, files, approvals, transcripts,
+and recovery behavior.
 
-The integration layer keeps application behavior stable while exposing the
-harness in the way it works best:
+The integration layer lets an application use that harness without hard-coding
+the whole application to one harness. It keeps the definition stable, gives the
+caller named work, routes tool calls, connects the workspace, stages skills,
+streams events, checks policies, and records what happened.
 
-- caller-owned work identity
-- typed tool bridges
-- remote workspace binding
-- skill packaging
-- harness adapter behavior
-- event normalization
-- policy and completion integration
-- reconnect and idempotency behavior
-- debug and eval records
+## What It Does
 
-## Integration Responsibilities
+The integration layer has a small number of jobs:
 
-The integration layer:
-
-- renders the definition
-- translates rendered prompt, tool schemas, and skills into harness input
-- creates or connects durable work through the sandbox protocol
-- binds the correct remote workspace
-- streams harness events into standard events
-- routes definition tool requests to application handlers
-- enforces or delegates policies
-- propagates budgets and deadlines
-- validates structured output
-- runs completion checks
-- distinguishes tool errors from transport errors
-- emits evidence records
+- render the definition into harness input
+- stage skills and runtime files
+- create or reconnect durable work through the sandbox protocol
+- attach the right workspace
+- route definition tool requests to application handlers
+- translate harness events into standard events
+- enforce or delegate policies
+- validate structured output and completion checks
+- distinguish tool failures from transport failures
+- emit run records
 
 Business logic belongs in the definition or application. Harness-specific
 translation belongs in the harness adapter. Durable work, reconnect, workspace
-mounting, and lifecycle rules belong in the sandbox protocol, even when one
-implementation packages those pieces together.
+mounting, and lifecycle rules belong in the sandbox protocol. One codebase may
+package these together, but the responsibilities remain separate.
 
 ## Harness Adapters
 
 A harness adapter speaks one harness's rules and formats. It knows:
 
 - prompt and message shape
-- built-in tool vocabulary
-- edit and filesystem event formats
-- skill discovery and mounting conventions
-- approval and policy integration points
+- built-in tool names and event formats
+- skill discovery and mount rules
+- approval and policy hooks
 - structured output support
-- harness error and terminal result formats
+- terminal result and error formats
 - private backend session identifiers
 
-The harness adapter's job is not to make all harnesses behaviorally identical.
-Its job is to make differences explicit, observable, and testable while
-preserving the portable definition contract.
+The adapter's job is not to make all harnesses behave the same. Its job is to
+preserve the shared definition while making harness differences explicit,
+visible, and testable.
 
-## Integration Boundaries
+## What Belongs Where
 
-Remote sandbox architectures usually have three boundaries.
+Remote sandbox systems usually split responsibility three ways.
 
-**Definition boundary.** Owns portable intent: prompt structure, tools,
-policies, state, resources, completion checks, and output contracts.
+**Definition.** Owns prompt structure, declared tools, policies, feedback,
+state, resources, completion checks, and output shape.
 
-**Harness adapter boundary.** Translates the integration contract into a
-specific harness and translates harness events back into standard events.
+**Harness adapter.** Translates the definition into one harness's input and
+translates harness events back into standard events.
 
-**Sandbox protocol boundary.** Owns durable work, workspace access, lifecycle,
-reconnect, isolation, external access policy, and control-plane state.
+**Sandbox protocol.** Owns durable work, workspace access, lifecycle, reconnect,
+isolation, external access policy, and control-plane state.
 
-This split keeps definitions portable, lets harness adapters go deep on harness
-behavior, and prevents sandbox lifecycle from leaking into prompt design.
+This split keeps prompts from depending on sandbox lifecycle details and keeps
+sandbox code from knowing application intent.
 
-## Integration Points
+## Bridges
 
-The integration work is broader than one client class.
+The integration work is broader than one client object.
 
-- **Tool bridge.** Routes harness tool requests to application handlers with
-  typed input, typed output, policy checks, idempotency, and records.
-- **Skill packaging.** Ships repository, domain, or tool-specific operating
-  knowledge into the sandbox in the shape the harness can use.
-- **Workspace bridge.** Stages files, creates upload tickets, reads and writes
-  remote files, and exposes snapshots when supported.
-- **Event bridge.** Normalizes built-in harness events while preserving raw
-  references for debugging.
-- **Control bridge.** Maps caller-owned work names to sandbox lifecycle,
-  reconnect, turn ownership, and conflict handling.
-- **Evaluation bridge.** Makes runs reproducible enough to compare definition,
-  harness adapter, model, harness, and sandbox changes.
+**Tool bridge.** Routes harness tool requests to application handlers with typed
+input, typed output, policy checks, idempotency, and records.
+
+**Skill bridge.** Packages repository, domain, or tool knowledge in the shape
+the harness can use.
+
+**Workspace bridge.** Stages files, creates upload tickets, reads and writes
+remote files, and exposes snapshots when supported.
+
+**Event bridge.** Converts built-in harness events into standard events while
+preserving raw references for debugging.
+
+**Control bridge.** Maps caller-owned work names to sandbox lifecycle,
+reconnect, turn ownership, and conflict handling.
+
+**Eval bridge.** Records enough about each run to compare definition, harness
+adapter, model, harness, and sandbox changes.
 
 ## Protocol Before Client
 
-Design the protocol before designing the client object. The protocol makes
-these cases explicit:
+Design the protocol before designing the client object. The protocol needs
+explicit behavior for:
 
 - start versus reconnect
-- duplicate start with same contract
-- duplicate start with conflicting contract
-- pending tool request
-- duplicate tool completion
-- built-in harness event
-- terminal result
+- duplicate start with the same work contract
+- duplicate start with a conflicting work contract
+- pending tool requests
+- duplicate tool completions
+- built-in harness events
+- terminal results
 - harness adapter disconnect
 - sandbox restart
 - workspace upload
 - skill installation or discovery
 - snapshot and rollback
 
-If these cases are left implicit, client libraries tend to encode local-only
-assumptions.
+When these cases stay implicit, clients tend to encode local-only assumptions.
 
-## Built-In Tools
+## Built-In Harness Tools
 
-Every harness has built-in capabilities. Harness adapters classify them:
+Every harness has built-in tools. A harness adapter classifies each one:
 
 - unavailable
-- available but not visible in the definition model
-- visible only as observed events
+- available but hidden from the definition
+- visible only through observed events
 - gated by sandbox policy
-- wrapped behind portable tool contracts
-- transactional through sandbox snapshot hooks
+- wrapped behind a definition tool
+- covered by sandbox snapshot hooks
 
 Do not give built-in tools stronger guarantees than the harness adapter can
-actually provide.
+provide.
 
 ## Contract Tests
 
-Every integration layer passes a shared contract test suite. The suite tests:
+The integration layer is ready only when shared tests pass. The tests cover:
 
-- deterministic render
+- definition rendering
 - tool schema translation
 - skill packaging
 - definition tool call and completion
 - policy denial
 - feedback delivery
 - structured output validation
-- built-in event normalization
+- built-in event translation
 - transaction behavior for supported resources
 - workspace upload and read/write
 - duplicate turn start
-- reconnect with pending tool call
+- reconnect with a pending tool call
 - disconnect grace expiry
 - debug bundle generation
 
-Contract tests run at the protocol layer where possible so multiple language
-implementations share the same expected behavior.
+Contract tests run at the protocol layer where possible so implementations in
+different languages can share the same expected behavior.
 
-## Local Integration
+## Local Mode
 
-Local integration uses the same rules:
+Local mode follows the same rules:
 
 - caller-owned work IDs
-- typed protocol messages, even if in-memory
+- typed protocol messages, even if in memory
 - filesystem abstraction
 - streamed events
-- explicit built-in tool capability classification
-- skill packaging path equivalent to remote mode
+- explicit built-in tool classification
+- skill staging equivalent to remote mode
 
-Local mode is a convenience implementation of the remote contract, not a second
-architecture.
+Local mode is the remote design in a simpler setting, not a second design.
