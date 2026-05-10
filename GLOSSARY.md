@@ -9,7 +9,7 @@ Prefer declared tools over ambient sandbox network access.
 **Caller-owned identifier.** Stable name supplied by the orchestrator or
 application for durable work.
 
-**Canonical event.** Normalized event emitted by a driver so different
+**Canonical event.** Normalized event emitted by a harness adapter so different
 harnesses can be observed uniformly.
 
 **Completion check.** Verification step that decides whether a candidate final
@@ -18,7 +18,7 @@ response satisfies the definition's done criteria.
 **Compute lifecycle.** Start, sleep, restart, and stop behavior of sandbox or
 harness compute.
 
-**Connection lifecycle.** Transport connection behavior between driver,
+**Connection lifecycle.** Transport connection behavior between harness adapter,
 control plane, and harness.
 
 **Control plane.** Service boundary that owns sandbox lifecycle, routing,
@@ -26,10 +26,6 @@ auth, workspace mounting, durable ledgers, and reconnect semantics.
 
 **Definition tool.** Tool declared by the agent definition and fulfilled by the
 orchestrator or application.
-
-**Driver.** Code and configuration that bind application-owned definitions,
-tools, skills, and work identifiers to a concrete execution substrate and
-sandbox protocol.
 
 **Execution substrate.** Coupled model plus harness runtime: model, harness
 loop, native tools, protocol, filesystem assumptions, approval modes, and
@@ -44,9 +40,12 @@ without blocking the event.
 **Harness.** Runtime that owns the model act loop, native tools, provider
 integration, and sandbox-local execution.
 
+**Harness adapter.** Integration-layer component that translates portable
+definitions, tools, skills, and events into one harness's native semantics.
+
 **Native harness tool.** Capability provided by the harness, such as shell,
 file edit, search, or patch. Its semantics are harness-specific unless wrapped
-by the driver.
+by the harness adapter.
 
 **Policy.** Fail-closed invariant checked at a defined boundary.
 
@@ -72,8 +71,8 @@ a transaction boundary.
 
 **Structured output.** Typed output contract for final agent results.
 
-**Conformance suite.** Behavioral test suite that proves a driver implements
-the shared contract.
+**Conformance suite.** Behavioral test suite that proves an integration layer
+implements the shared contract.
 
 **Tool result.** Typed success or failure returned to the agent after a tool
 call.

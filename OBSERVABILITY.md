@@ -24,8 +24,8 @@ These records use caller-owned work identifiers.
 
 ## Canonical Events
 
-Harnesses emit different event streams. Drivers normalize them into a canonical
-event envelope while preserving raw payload references for debugging.
+Harnesses emit different event streams. Harness adapters normalize them into a
+canonical event envelope while preserving raw payload references for debugging.
 
 A canonical event includes:
 
@@ -35,7 +35,7 @@ A canonical event includes:
 - sandbox key
 - session, thread, and turn identifiers when available
 - tool call identifier when applicable
-- driver and harness names
+- harness adapter and harness names
 - raw event type
 - structured payload
 - trace context
@@ -59,7 +59,7 @@ Transcripts are for inspection. Canonical events are the source of truth.
 A debug bundle contains enough to reproduce or explain a run:
 
 - definition version and prompt hash
-- driver configuration
+- harness adapter configuration
 - skill versions and staged file manifests
 - semantic contract
 - event stream

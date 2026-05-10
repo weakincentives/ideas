@@ -27,7 +27,7 @@ An eval loop runs many agent-loop instances against a dataset. It tracks:
 - dataset version
 - definition version
 - prompt override set
-- driver and harness versions
+- harness adapter and harness versions
 - model settings
 - skill versions
 - workspace seed
@@ -81,8 +81,8 @@ Eval reports include:
 - budget summaries
 - representative transcripts
 - links or references to debug bundles
-- driver conformance failures
+- integration conformance failures
 
 The report makes it obvious whether a regression came from definition changes,
-driver behavior, skill changes, harness behavior, model behavior, or sandbox
-infrastructure.
+harness adapter behavior, skill changes, harness behavior, model behavior, or
+sandbox infrastructure.

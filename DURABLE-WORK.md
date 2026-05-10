@@ -95,8 +95,8 @@ the turn reaches a forensics-friendly terminal state.
 ## Ownership
 
 Only one live connection normally owns a mutable turn. Multiple readers may
-observe, but one driver fulfills pending tool calls. Ownership changes are
-explicit and recorded.
+observe, but one harness adapter fulfills pending tool calls. Ownership changes
+are explicit and recorded.
 
 ## Deletion
 

@@ -23,9 +23,9 @@ Application teams own agent definitions: prompt structure, declared tools,
 policies, feedback, completion checks, state reducers, resources, output
 contracts, and evaluation fixtures.
 
-They also own the integration layer: drivers, tool bridges, skills, workspace
-integration, evals, conformance, and observability surfaces. That is where
-durable leverage lives.
+They also own the integration layer: harness adapters, tool bridges, skills,
+workspace integration, evals, conformance, and observability surfaces. That is
+where durable leverage lives.
 
 ## 4. The Prompt Is Executable Structure
 
@@ -44,8 +44,8 @@ an output format declares the output type. Structure makes drift harder.
 
 Skills package the operational knowledge a harness needs to use a repository,
 tool, workflow, or domain correctly. They are not decorative prompt fragments.
-They are versioned integration assets that travel with the driver and are tested
-against the harness.
+They are versioned integration assets that travel with the harness adapter and
+are tested against the harness.
 
 ## 7. Expose Side Effects as Tools
 
@@ -86,8 +86,8 @@ local paths are development conveniences, not design premises.
 ## 13. Work Identity Belongs to the Caller
 
 The caller supplies stable identifiers for durable work. Backend session IDs,
-provider request handles, and runtime trace tokens are private driver state.
-Public protocol payloads use caller-owned names.
+provider request handles, and runtime trace tokens are private integration
+state. Public protocol payloads use caller-owned names.
 
 ## 14. Transport Is Not Ownership
 
@@ -109,6 +109,7 @@ snapshots or references, outputs, budgets, errors, and trace correlation.
 
 ## 17. Conformance Is Proved, Not Assumed
 
-A driver passes a shared conformance suite before claiming portability. The
-suite covers rendering, tool bridging, skills, policies, state, transactions,
-durable work, reconnect, observability, and structured output.
+An integration layer passes a shared conformance suite before claiming
+portability. The suite covers rendering, tool bridging, harness adapters,
+skills, policies, state, transactions, durable work, reconnect, observability,
+and structured output.

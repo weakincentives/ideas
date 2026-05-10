@@ -1,4 +1,4 @@
-# The Many Habits of Highly Effective Agents
+# Guiding Principles for Highly Effective Agents that Age Well
 
 Guiding principles for agent systems that use coupled model-harness substrates
 and own the integration layer around them.
@@ -24,7 +24,8 @@ The durable work is the layer around that substrate:
 
 - definitions that make prompts, tools, policies, state, resources, and output
   contracts explicit
-- drivers that bind application intent to harness-native execution
+- harness adapters that translate application intent into harness-native
+  execution
 - integration points that expose application systems as typed tools
 - skills that package operational knowledge in harness-usable form
 - workspace protocols that make remote filesystem state durable
@@ -40,11 +41,11 @@ An agent system has three strata.
 - The **execution substrate** runs the coupled model-harness loop.
 
 Application teams own the definition and integration layers: definitions,
-drivers, tool bridges, skills, tests, evals, conformance, and operational
-evidence. Harness and sandbox platforms own the execution substrate. The
-boundary between them must preserve work identity, bridge tools without ambient
-egress, expose a durable filesystem, stream observable events, and reconnect
-without duplicating work.
+harness adapters, tool bridges, skills, tests, evals, conformance, and
+operational evidence. Harness and sandbox platforms own the execution substrate.
+The boundary between them must preserve work identity, bridge tools without
+ambient egress, expose a durable filesystem, stream observable events, and
+reconnect without duplicating work.
 
 ## Design Map
 
@@ -63,8 +64,8 @@ These files form one contract.
 - [WORKSPACES.md](WORKSPACES.md) defines the remote filesystem model.
 - [DURABLE-WORK.md](DURABLE-WORK.md) defines work identity, idempotency,
   reconnect, conflicts, and lifecycle separation.
-- [INTEGRATION-LAYER.md](INTEGRATION-LAYER.md) covers drivers and integration
-  points.
+- [INTEGRATION-LAYER.md](INTEGRATION-LAYER.md) covers harness adapters and
+  integration points.
 - [OBSERVABILITY.md](OBSERVABILITY.md) defines events, transcripts, snapshots,
   traces, and debug bundles.
 - [EVALUATION.md](EVALUATION.md) covers agent loops, eval loops, datasets,
@@ -77,13 +78,14 @@ This repository sits between application code and any one execution substrate.
 It asks:
 
 - What must application teams own when model and harness are coupled?
-- What belongs in an agent definition, and what belongs in a driver?
+- What belongs in an agent definition, and what belongs in the integration
+  layer?
 - Which integration points and skills create durable leverage?
 - How does a client name work so retries and reconnects are safe?
 - What does a remote persistent workspace need to provide?
 - Where can transaction guarantees honestly hold?
 - How are tool calls, native tool events, and filesystem changes observed?
-- What must a driver prove before it conforms?
+- What must an integration layer prove before it conforms?
 
 ## Non-Goals
 

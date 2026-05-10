@@ -10,7 +10,7 @@ The usual topology has four pieces.
 ```
 Application / Orchestrator
     |
-    | definition, driver, skills, durable work IDs, tool handlers
+    | definition, integration layer, skills, durable work IDs, tool handlers
     v
 Sandbox Control Plane
     |
@@ -48,7 +48,8 @@ least four tiers separate:
 
 - definition and session state owned by the caller-facing framework
 - durable control-plane records such as runtime, thread, and turn ledgers
-- live routing state needed to connect drivers, tool requests, and harnesses
+- live routing state needed to connect harness adapters, tool requests, and
+  harnesses
 - persistent workspace state in remote storage
 
 ## Execution Substrate
@@ -59,8 +60,8 @@ and runtime recovery. It may be a CLI harness, service-hosted harness,
 protocol-compatible agent runtime, or something not yet designed.
 
 The substrate can sit behind a stable sandbox protocol without being treated as
-behaviorally identical to other harnesses. Drivers absorb those differences and
-make them explicit.
+behaviorally identical to other harnesses. Harness adapters absorb those
+differences and make them explicit.
 
 The definition library does not assume the harness can call in-process functions
 or read local files from the orchestrator.
@@ -82,11 +83,12 @@ A portable sandbox protocol needs primitives for:
 - create upload tickets for large files
 - snapshot and restore workspace state
 - list native skills or capabilities
-- stage or mount driver-provided skills
+- stage or mount skills provided by harness adapters
 - close, detach, and reattach connections
 
 The protocol uses caller-owned identifiers in public payloads. Backend runtime
-identifiers can exist, but they stay private to drivers and the control plane.
+identifiers can exist, but they stay private to harness adapters and the control
+plane.
 
 ## Egress
 

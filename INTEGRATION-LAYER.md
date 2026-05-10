@@ -1,34 +1,41 @@
 # Integration Layer
 
-Drivers bind application-owned definitions, tools, skills, and work identifiers
-to a coupled execution substrate. They are product code at the boundary where
-application semantics meet harness semantics.
+The integration layer binds application-owned definitions, tools, skills, and
+work identifiers to coupled execution substrates and sandbox protocols. It is
+the boundary where portable application semantics meet harness-native behavior.
 
-## Why Drivers Matter
+`Harness adapter` names the harness-specific part of that layer. It is not the
+architecture. It is the component that translates the shared integration
+contract into one harness's prompt shape, native tools, event stream, skill
+format, approval behavior, structured output support, and error semantics.
+
+## Why the Layer Matters
 
 Agentic harnesses are opinionated execution environments. Their models are
 trained and evaluated with assumptions about tools, files, edit loops, approval
 modes, transcripts, and recovery. A definition library preserves those
 assumptions instead of flattening the harness into a generic loop.
 
-The driver exposes the harness while keeping application semantics stable:
+The integration layer keeps application semantics stable while exposing the
+harness productively:
 
 - caller-owned work identity
 - typed tool bridges
 - remote workspace binding
 - skill packaging
+- harness adapter behavior
 - event normalization
 - policy and completion integration
 - reconnect and idempotency behavior
 - debug and eval artifacts
 
-## Driver Responsibilities
+## Integration Responsibilities
 
-A driver:
+The integration layer:
 
 - renders the definition
 - translates rendered prompt, tool schemas, and skills into harness input
-- creates or connects durable work
+- creates or connects durable work through the sandbox protocol
 - binds the correct remote workspace
 - streams harness events into canonical events
 - routes definition tool requests to application handlers
@@ -39,24 +46,43 @@ A driver:
 - distinguishes tool errors from transport errors
 - emits observability records
 
-The driver contains integration logic at the harness/protocol boundary, not
-business logic that belongs in the definition or application.
+Business logic belongs in the definition or application. Harness-native
+translation belongs in the harness adapter. Durable work, reconnect, workspace
+mounting, and lifecycle semantics belong in the sandbox protocol, even when one
+implementation packages those pieces together.
 
-## Two Integration Boundaries
+## Harness Adapters
 
-In a remote sandbox architecture there are often two integration boundaries.
+A harness adapter speaks one harness's native semantics. It knows:
 
-**Definition-side driver.** Lives with the definition library. It knows how to
-render definitions, expose application tools, package skills, and interpret
-canonical events.
+- prompt and message shape
+- native tool vocabulary
+- edit and filesystem event formats
+- skill discovery and mounting conventions
+- approval and policy integration points
+- structured output support
+- native error and terminal result formats
+- private backend session identifiers
 
-**Harness-side driver.** Lives near the sandbox control plane. It knows how to
-run a specific harness, translate native events, manage private backend session
-IDs, connect the harness to the sandbox protocol, and apply sandbox-local
-policy.
+The harness adapter's job is not to make all harnesses behaviorally identical.
+Its job is to make differences explicit, observable, and testable while
+preserving the portable definition contract.
 
-This split keeps application definitions portable while allowing deep harness
-integration.
+## Integration Boundaries
+
+Remote sandbox architectures usually have three boundaries.
+
+**Definition boundary.** Owns portable intent: prompt structure, tools,
+policies, state, resources, completion checks, and output contracts.
+
+**Harness adapter boundary.** Translates the integration contract into a
+specific harness and translates harness events back into canonical events.
+
+**Sandbox protocol boundary.** Owns durable work, workspace access, lifecycle,
+reconnect, isolation, egress policy, and control-plane state.
+
+This split keeps definitions portable, lets harness adapters go deep on native
+semantics, and prevents sandbox lifecycle from leaking into prompt design.
 
 ## Integration Points
 
@@ -72,8 +98,8 @@ The durable surface area is broader than one client class.
   references for debugging.
 - **Control bridge.** Maps caller-owned work names to sandbox lifecycle,
   reconnect, turn ownership, and conflict handling.
-- **Evaluation bridge.** Makes runs reproducible enough to compare driver,
-  definition, model, harness, and sandbox changes.
+- **Evaluation bridge.** Makes runs reproducible enough to compare definition,
+  harness adapter, model, harness, and sandbox changes.
 
 ## Protocol Before Client
 
@@ -87,7 +113,7 @@ these cases explicit:
 - duplicate tool completion
 - native harness event
 - terminal result
-- driver disconnect
+- harness adapter disconnect
 - sandbox restart
 - workspace upload
 - skill installation or discovery
@@ -98,7 +124,7 @@ assumptions.
 
 ## Native Tools
 
-Every harness has native capabilities. Drivers classify them:
+Every harness has native capabilities. Harness adapters classify them:
 
 - unavailable
 - available but not visible in the definition model
@@ -107,12 +133,12 @@ Every harness has native capabilities. Drivers classify them:
 - wrapped behind portable tool contracts
 - transactional through sandbox snapshot hooks
 
-Do not give native tools stronger semantics than the driver can actually
-provide.
+Do not give native tools stronger semantics than the harness adapter can
+actually provide.
 
 ## Conformance Suite
 
-Every driver passes a shared conformance suite. The suite tests:
+Every integration layer passes a shared conformance suite. The suite tests:
 
 - deterministic render
 - tool schema translation
@@ -132,9 +158,9 @@ Every driver passes a shared conformance suite. The suite tests:
 Conformance tests are protocol-level where possible so multiple language
 implementations share the same behavioral target.
 
-## Local Driver
+## Local Integration
 
-A local driver uses the same semantics:
+Local integration uses the same semantics:
 
 - caller-owned work IDs
 - typed protocol messages, even if in-memory

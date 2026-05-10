@@ -9,8 +9,8 @@ workflow, domain, or tool correctly.
 If the model and harness are trained and evaluated together, the shape of the
 context matters. A harness may have conventions for skill discovery, file
 layout, manifests, scripts, examples, tool descriptions, and runtime assets.
-Good drivers feed those conventions rather than flatten every harness into
-generic prompt text.
+Good harness adapters feed those conventions rather than flatten every harness
+into generic prompt text.
 
 Skills are one of the main places application teams spend effort. They turn
 local operational knowledge into reusable, testable harness input.
@@ -32,7 +32,7 @@ A skill may contain:
 - runtime assets that must be uploaded to the sandbox
 
 The exact packaging format is harness-specific. The design requirement is that
-the driver can stage, mount, version, observe, and test the skill.
+the harness adapter can stage, mount, version, observe, and test the skill.
 
 ## Skill Boundary
 
@@ -42,7 +42,8 @@ A skill can tell the harness when and how to call a tool. The tool still needs a
 typed schema, policy, result contract, and idempotency behavior.
 
 A skill can include scripts or helper files. If those scripts mutate the
-workspace or call the network, the driver and sandbox policy make that visible.
+workspace or call the network, the harness adapter and sandbox policy make that
+visible.
 
 ## Remote Staging
 
@@ -59,13 +60,14 @@ Skill staging records:
 - target mount path
 - required tools
 - required permissions
-- driver and harness version
+- harness adapter version
+- harness version
 
 This makes a run explainable after the local checkout has moved on.
 
 ## Evaluation
 
-Skills are tested as part of the driver conformance suite. Tests cover:
+Skills are tested as part of the integration conformance suite. Tests cover:
 
 - discovery
 - staging

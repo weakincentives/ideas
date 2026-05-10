@@ -13,7 +13,7 @@ The workspace survives:
 
 - harness process restart
 - sandbox compute restart
-- driver disconnect
+- harness adapter disconnect
 - orchestrator deployment
 - turn retry or reattach
 

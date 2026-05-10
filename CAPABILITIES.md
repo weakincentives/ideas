@@ -13,8 +13,8 @@ definition owns their schema, policy, result type, and documentation.
 
 **Native harness tools** are provided by the harness inside the sandbox. Common
 examples include shell, file edit, file read, search, and patch tools. They are
-not definition tools unless the driver deliberately re-exposes them through a
-portable contract.
+not definition tools unless the harness adapter deliberately re-exposes them
+through a portable contract.
 
 The distinction matters for transactions and observability. A definition
 library can wrap definition tools. It can only observe native tools unless the
@@ -28,7 +28,8 @@ or domain correctly.
 
 Skills may include instructions, examples, scripts, manifests, schemas,
 fixtures, or references to definition tools. They are versioned and tested with
-the driver because harnesses differ in how they discover, mount, and use skills.
+the harness adapter because harnesses differ in how they discover, mount, and
+use skills.
 
 Teams put harness-facing operating knowledge in skills. Skills are not a
 substitute for typed tools, and typed tools are not a substitute for skills.

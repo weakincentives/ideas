@@ -30,8 +30,9 @@ The harness owns:
 - runtime-specific approval modes
 - native event formats
 
-The driver maps between them. It preserves the definition's application
-semantics while respecting the execution substrate's native behavior.
+The integration layer maps between them. It preserves the definition's
+application semantics while respecting the execution substrate's native
+behavior.
 
 ## Prompt as Structure
 
@@ -80,8 +81,9 @@ complete, inspectable definition.
 ## Structured Output
 
 When a run expects structured output, the definition declares it as a typed
-contract. The driver may use native schema enforcement when the harness supports
-it. Otherwise it falls back to prompt instructions plus validation and repair.
+contract. The harness adapter may use native schema enforcement when the harness
+supports it. Otherwise it falls back to prompt instructions plus validation and
+repair.
 
 The caller receives a typed result, not unvalidated JSON-shaped text.
 
@@ -97,8 +99,9 @@ unreviewed production configuration channel.
 ## Portability Test
 
 A definition is portable when it can be rendered, inspected, evaluated, and run
-against multiple drivers without changing definition code. Harness differences
-belong in drivers, skill packages, and adapter shims, not in prompt branches.
+against multiple harness adapters without changing definition code. Harness
+differences belong in harness adapters, skill packages, and protocol shims, not
+in prompt branches.
 
 Portability does not mean identical behavior across harnesses. It means the
 same application intent can be driven through each execution substrate with the
