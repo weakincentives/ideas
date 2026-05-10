@@ -1,8 +1,7 @@
 # Capabilities
 
-Capabilities are the agent's declared ways to affect the world. The important
-rule is simple: application side effects should be named tools, not ambient
-access.
+Capabilities are the agent's declared ways to affect the world. Application
+side effects are named tools, not ambient access.
 
 ## Tool Classes
 
@@ -28,17 +27,15 @@ knowledge that helps the execution substrate use a repository, tool, workflow,
 or domain correctly.
 
 Skills may include instructions, examples, scripts, manifests, schemas,
-fixtures, or references to definition tools. They should be versioned and tested
-with the driver because harnesses differ in how they discover, mount, and use
-skills.
+fixtures, or references to definition tools. They are versioned and tested with
+the driver because harnesses differ in how they discover, mount, and use skills.
 
-Skills are where teams should put harness-facing operating knowledge. They are
-not a substitute for typed tools, and typed tools are not a substitute for
-skills.
+Teams put harness-facing operating knowledge in skills. Skills are not a
+substitute for typed tools, and typed tools are not a substitute for skills.
 
 ## Tool Contract
 
-A tool should have:
+A tool has:
 
 - stable portable name
 - typed input schema
@@ -50,30 +47,30 @@ A tool should have:
 - timeout and budget behavior
 - idempotency guidance for external effects
 
-Portable tool names should fit the lowest common denominator of the target
-protocols: lowercase ASCII letters, digits, underscore, and hyphen are usually
-safe. Avoid names whose meaning depends on one harness.
+Portable tool names fit the lowest common denominator of the target protocols:
+lowercase ASCII letters, digits, underscore, and hyphen are usually safe. Avoid
+names whose meaning depends on one harness.
 
 ## Tool Results
 
-Tool failure is data, not a framework crash. A failed tool should return a typed
-error result that the agent can reason about. Transport failure is different: it
-means the caller does not know whether the tool request was received or
-completed and must reconcile with the sandbox.
+Tool failure is data, not a framework crash. A failed tool returns a typed error
+result that the agent can reason about. Transport failure is different: it means
+the caller does not know whether the tool request was received or completed and
+must reconcile with the sandbox.
 
 ## Policies
 
 Policies are fail-closed invariants. They can apply before render, before a
 tool call, after a tool call, before final output, or during reconnect.
 
-Good policies are small, typed, deterministic, and explainable. They should
-produce denial records that can be inspected in traces and debug bundles.
+Good policies are small, typed, deterministic, and explainable. They produce
+denial records that can be inspected in traces and debug bundles.
 
 ## Feedback
 
 Feedback is advisory. It nudges the agent after an event without blocking the
-event. Feedback is useful for style, sequencing hints, read-before-write
-reminders, and context steering.
+event. Feedback covers style, sequencing hints, read-before-write reminders,
+and context steering.
 
 Policies prevent invalid behavior. Feedback improves behavior that is still
 allowed.
@@ -84,16 +81,15 @@ Completion checks verify that "done" really means done. They run after the
 harness produces a candidate final response and may inspect the session,
 workspace metadata, tool history, or structured output.
 
-Completion checks should be deterministic when possible. LLM-as-judge can be
-useful, but should be treated as a typed evaluator with its own model,
-threshold, prompt hash, and trace.
+Completion checks are deterministic when possible. LLM-as-judge can help, but
+it is a typed evaluator with its own model, threshold, prompt hash, and trace.
 
 ## Egress Boundary
 
-Remote sandboxes should restrict application egress. Model-provider traffic may
-be allowed for the harness. Application traffic should flow through definition
-tools fulfilled by the orchestrator or through explicitly declared sandbox
-egress profiles.
+Remote sandboxes restrict application egress. Model-provider traffic may be
+allowed for the harness. Application traffic flows through definition tools
+fulfilled by the orchestrator or through explicitly declared sandbox egress
+profiles.
 
 This creates an auditable capability surface:
 

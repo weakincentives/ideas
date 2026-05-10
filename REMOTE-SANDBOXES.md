@@ -1,7 +1,7 @@
 # Sandboxed Runtimes
 
-Production agent systems should assume the harness runs in a remote sandbox,
-not inside the application process.
+Production agent systems assume the harness runs in a remote sandbox, not
+inside the application process.
 
 ## Topology
 
@@ -24,16 +24,16 @@ Remote Workspace
 ```
 
 The implementation may collapse pieces for local development, but the contract
-should still behave as if the boundary is remote.
+still behaves as if the boundary is remote.
 
 ## Orchestrator
 
 The orchestrator owns the definition and caller-visible work identity. It
 renders prompts, declares tools, fulfills definition tool calls, evaluates
 policies that live in the definition layer, records application-level events,
-and decides when work should be started, retried, reattached, or abandoned.
+and decides when to start, retry, reattach, or abandon work.
 
-The orchestrator should not require direct access to sandbox-local paths or
+The orchestrator does not require direct access to sandbox-local paths or
 processes.
 
 ## Sandbox Control Plane
@@ -58,12 +58,12 @@ planning loop, native tools, edit semantics, provider traffic, approval modes,
 and runtime recovery. It may be a CLI harness, service-hosted harness,
 protocol-compatible agent runtime, or something not yet designed.
 
-It should be replaceable behind a stable sandbox protocol, but not treated as
+The substrate can sit behind a stable sandbox protocol without being treated as
 behaviorally identical to other harnesses. Drivers absorb those differences and
 make them explicit.
 
-The definition library should not assume the harness can call in-process
-functions or read local files from the orchestrator.
+The definition library does not assume the harness can call in-process functions
+or read local files from the orchestrator.
 
 ## Protocol Surface
 
@@ -85,25 +85,24 @@ A portable sandbox protocol needs primitives for:
 - stage or mount driver-provided skills
 - close, detach, and reattach connections
 
-The protocol should use caller-owned identifiers in public payloads. Backend
-runtime identifiers can exist, but they stay private to drivers and the
-control plane.
+The protocol uses caller-owned identifiers in public payloads. Backend runtime
+identifiers can exist, but they stay private to drivers and the control plane.
 
 ## Egress
 
-Remote sandboxes should default to restricted egress.
+Remote sandboxes default to restricted egress.
 
 - Provider and model traffic can be allowed through a narrow profile.
-- Application egress should use definition tools.
-- Setup-time egress should be explicit and auditable.
-- Broad egress should be treated as an exception, not the default runtime mode.
+- Application egress uses definition tools.
+- Setup-time egress is explicit and auditable.
+- Broad egress is an exception, not the default runtime mode.
 
 This makes the protocol capability-oriented rather than network-oriented.
 
 ## Local Mode
 
-Local mode is useful for tests and development. It should emulate the same
-protocol semantics:
+Local mode supports tests and development. It emulates the same protocol
+semantics:
 
 - caller-owned work IDs
 - semantic contract conflicts

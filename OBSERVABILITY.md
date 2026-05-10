@@ -5,7 +5,7 @@ not really observed.
 
 ## Required Artifacts
 
-A useful system should emit:
+A robust system emits:
 
 - rendered definition and prompt hash
 - declared tool schemas
@@ -20,14 +20,14 @@ A useful system should emit:
 - budget and deadline records
 - trace identifiers across protocol boundaries
 
-These records should use caller-owned work identifiers.
+These records use caller-owned work identifiers.
 
 ## Canonical Events
 
-Harnesses emit different event streams. Drivers should normalize them into a
-canonical event envelope while preserving raw payload references for debugging.
+Harnesses emit different event streams. Drivers normalize them into a canonical
+event envelope while preserving raw payload references for debugging.
 
-A canonical event should include:
+A canonical event includes:
 
 - event type
 - stable sequence number or timestamp
@@ -42,7 +42,7 @@ A canonical event should include:
 
 ## Transcripts
 
-The transcript is the human-readable reconstruction of a run. It should merge:
+The transcript is the human-readable reconstruction of a run. It merges:
 
 - rendered prompt
 - model messages
@@ -56,7 +56,7 @@ Transcripts are for inspection. Canonical events are the source of truth.
 
 ## Debug Bundles
 
-A debug bundle should contain enough to reproduce or explain a run:
+A debug bundle contains enough to reproduce or explain a run:
 
 - definition version and prompt hash
 - driver configuration
@@ -70,12 +70,12 @@ A debug bundle should contain enough to reproduce or explain a run:
 - tool schemas and tool results
 - terminal error chain
 
-Bundles should avoid embedding secrets. References to remote artifacts are
+Bundles avoid embedding secrets. References to remote artifacts are
 acceptable when retention and access are clear.
 
 ## Trace Propagation
 
-Trace context should cross:
+Trace context crosses:
 
 - orchestrator to sandbox control plane
 - control plane to harness runtime
@@ -85,13 +85,13 @@ Trace context should cross:
 - tool completion back to harness
 
 Backend provider IDs can be recorded as private correlation fields. Public
-correlation should use caller-owned identifiers.
+correlation uses caller-owned identifiers.
 
 ## Retention
 
 Not every artifact has the same retention requirement. Event summaries may live
 longer than raw provider payloads. Workspace snapshots may expire before
-transcripts. Debug bundles should record which referenced artifacts may expire.
+transcripts. Debug bundles record which referenced artifacts may expire.
 
-Retention should be explicit so evaluation results remain interpretable after
-large raw artifacts are cleaned up.
+Retention is explicit so evaluation results remain interpretable after large raw
+artifacts are cleaned up.

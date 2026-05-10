@@ -1,7 +1,7 @@
 # Definition Model
 
 An agent definition is a portable, typed description of what an agent is allowed
-to think about and do. It should be stable across harnesses and sandbox
+to think about and do. It remains stable across harnesses and sandbox
 platforms without pretending that all harnesses behave the same.
 
 ## Definition Boundary
@@ -35,8 +35,8 @@ semantics while respecting the execution substrate's native behavior.
 
 ## Prompt as Structure
 
-A prompt should be rendered from typed structure, not assembled through ad hoc
-string concatenation. The structure should support:
+A prompt is rendered from typed structure, not assembled through ad hoc string
+concatenation. The structure supports:
 
 - stable ordering
 - deterministic rendering
@@ -48,8 +48,8 @@ string concatenation. The structure should support:
 - structured output declarations
 - content hashing for overrides and experiments
 
-The rendered prompt is an artifact. It should be observable, hashable, and
-attached to the work it produced.
+The rendered prompt is an observable, hashable artifact attached to the work it
+produced.
 
 ## Sections
 
@@ -57,14 +57,14 @@ A section is the preferred unit of composition. It can carry instructions,
 children, tools, policies, feedback providers, resources, examples, and
 visibility metadata.
 
-Sections make capability local. A tool should appear near the instructions that
-teach the agent how to use it. A policy should appear near the behavior it
-constrains. A completion check should appear near the output it validates.
+Sections make capability local. A tool appears near the instructions that teach
+the agent how to use it. A policy appears near the behavior it constrains. A
+completion check appears near the output it validates.
 
 ## Progressive Disclosure
 
-The definition should not flood the model with every possible detail up front.
-It should support summary-first rendering and explicit expansion.
+The definition does not flood the model with every possible detail up front. It
+supports summary-first rendering and explicit expansion.
 
 Progressive disclosure applies to text and capability:
 
@@ -72,36 +72,33 @@ Progressive disclosure applies to text and capability:
 - detailed examples may be withheld until needed
 - expensive tools may be unavailable until the agent enters the phase that
   needs them
-- expansion events should be recorded
+- expansion events are recorded
 
-The goal is not secrecy. The goal is to keep the active context small while
-preserving a complete, inspectable definition.
+This is not secrecy. It keeps the active context small while preserving a
+complete, inspectable definition.
 
 ## Structured Output
 
-When a run expects structured output, the definition should declare it as a
-typed contract. The driver may use native schema enforcement when the harness
-supports it. Otherwise it should fall back to prompt instructions plus
-validation and repair.
+When a run expects structured output, the definition declares it as a typed
+contract. The driver may use native schema enforcement when the harness supports
+it. Otherwise it falls back to prompt instructions plus validation and repair.
 
-The caller should receive a typed result, not unvalidated JSON-shaped text.
+The caller receives a typed result, not unvalidated JSON-shaped text.
 
 ## Overrides
 
-Prompt iteration should be possible without silently mutating source
-definitions. An override should target a stable content hash or structural
-path, carry authorship and experiment metadata, and fail loudly if the base
-content changed.
+Prompt iteration happens without silently mutating source definitions. An
+override targets a stable content hash or structural path, carries authorship
+and experiment metadata, and fails loudly if the base content changed.
 
-Overrides are useful for evaluation and experimentation. They should not become
-an unreviewed production configuration channel.
+Overrides support evaluation and experimentation. They must not become an
+unreviewed production configuration channel.
 
 ## Portability Test
 
 A definition is portable when it can be rendered, inspected, evaluated, and run
 against multiple drivers without changing definition code. Harness differences
-belong in drivers, skill packages, and compatibility shims, not in prompt
-branches.
+belong in drivers, skill packages, and adapter shims, not in prompt branches.
 
 Portability does not mean identical behavior across harnesses. It means the
 same application intent can be driven through each execution substrate with the

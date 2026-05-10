@@ -8,7 +8,7 @@ which mutations survive failure. Both need clear boundaries.
 A session is caller-named state associated with one or more units of work. It
 contains typed slices updated by events.
 
-A state slice should define:
+A state slice defines:
 
 - name
 - type
@@ -18,14 +18,14 @@ A state slice should define:
 - rollback policy
 - visibility to tools or evaluators
 
-Reducers should be pure. They take prior state and an event, then return new
-state. They do not call the network, read the clock, or mutate files.
+Reducers are pure. They take prior state and an event, then return new state.
+They do not call the network, read the clock, or mutate files.
 
 ## Event Log
 
 Events are append-only evidence. They record what happened even when state rolls
 back. A failed tool call may leave no committed state mutation, but the failure
-event itself should remain.
+event itself remains.
 
 Useful event families include:
 
@@ -47,7 +47,7 @@ Resources are injected dependencies with explicit lifetime. Examples include a
 filesystem client, database client, object store, clock, sleeper, credentials
 provider, or test fixture.
 
-Resources should be scoped:
+Resources are scoped:
 
 - process singleton
 - session
@@ -92,29 +92,29 @@ For a definition tool, the normal flow is:
 7. rollback and return typed failure on error
 8. record events either way
 
-The agent should see a tool result, not transaction machinery.
+The agent sees a tool result, not transaction machinery.
 
 ## Request Idempotency
 
 Transactionality inside a turn is not enough. The turn itself needs
-idempotency. A durable request should be identified by:
+idempotency. A durable request is identified by:
 
 - caller-owned work identifier
 - caller-owned turn identifier
 - semantic contract hash
 
-The semantic contract should include inputs and declarations that change model
+The semantic contract includes inputs and declarations that change model
 behavior: prompt hash, tool schemas, model settings, structured output schema,
 workspace reference, and relevant policy configuration.
 
 Operational envelope values such as wait timeout or client connection deadline
-should only be part of the semantic contract when they alter sandbox behavior.
-Otherwise they are retry parameters, not a reason to create a conflict.
+belong in the semantic contract only when they alter sandbox behavior. Otherwise
+they are retry parameters, not a reason to create a conflict.
 
 ## Native Tool Limits
 
 Many harnesses have native file, command, search, and patch tools. A definition
-library should not overclaim control over them. There are three honest levels:
+library must not overclaim control over them. There are three honest levels:
 
 - observe native tool events and include them in transcripts
 - gate native tools through sandbox policy

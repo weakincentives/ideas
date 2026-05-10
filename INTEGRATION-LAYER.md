@@ -1,19 +1,17 @@
 # Integration Layer
 
-Drivers bind application-owned definitions and tools to a coupled
-execution substrate. They are not thin translation layers over a generic model
-API. They are product code at the boundary where application semantics meet
-harness semantics.
+Drivers bind application-owned definitions, tools, skills, and work identifiers
+to a coupled execution substrate. They are product code at the boundary where
+application semantics meet harness semantics.
 
 ## Why Drivers Matter
 
 Agentic harnesses are opinionated execution environments. Their models are
-trained and evaluated with particular assumptions about tools, files, edit
-loops, approval modes, transcripts, and recovery. A useful library should not
-hide those assumptions behind a pretend-universal loop.
+trained and evaluated with assumptions about tools, files, edit loops, approval
+modes, transcripts, and recovery. A definition library preserves those
+assumptions instead of flattening the harness into a generic loop.
 
-The driver should expose the harness productively while keeping application
-semantics stable:
+The driver exposes the harness while keeping application semantics stable:
 
 - caller-owned work identity
 - typed tool bridges
@@ -24,28 +22,25 @@ semantics stable:
 - reconnect and idempotency behavior
 - debug and eval artifacts
 
-This is the layer worth investing in.
-
 ## Driver Responsibilities
 
-A driver should:
+A driver:
 
-- render the definition
-- translate rendered prompt, tool schemas, and skills into harness input
-- create or connect durable work
-- bind the correct remote workspace
-- stream harness events into canonical events
-- route definition tool requests to application handlers
-- enforce or delegate policies
-- propagate budgets and deadlines
-- validate structured output
-- run completion checks
-- distinguish tool errors from transport errors
-- emit observability records
+- renders the definition
+- translates rendered prompt, tool schemas, and skills into harness input
+- creates or connects durable work
+- binds the correct remote workspace
+- streams harness events into canonical events
+- routes definition tool requests to application handlers
+- enforces or delegates policies
+- propagates budgets and deadlines
+- validates structured output
+- runs completion checks
+- distinguishes tool errors from transport errors
+- emits observability records
 
-The driver should not contain business logic that belongs in the definition or
-application. It should contain integration logic that belongs at the
-harness/protocol boundary.
+The driver contains integration logic at the harness/protocol boundary, not
+business logic that belongs in the definition or application.
 
 ## Two Integration Boundaries
 
@@ -82,8 +77,8 @@ The durable surface area is broader than one client class.
 
 ## Protocol Before Client
 
-Design the protocol before designing the client object. The protocol should
-make these cases explicit:
+Design the protocol before designing the client object. The protocol makes
+these cases explicit:
 
 - start versus reconnect
 - duplicate start with same contract
@@ -103,7 +98,7 @@ assumptions.
 
 ## Native Tools
 
-Every harness has native capabilities. Drivers should classify them:
+Every harness has native capabilities. Drivers classify them:
 
 - unavailable
 - available but not visible in the definition model
@@ -112,12 +107,12 @@ Every harness has native capabilities. Drivers should classify them:
 - wrapped behind portable tool contracts
 - transactional through sandbox snapshot hooks
 
-Do not pretend native tools have stronger semantics than the driver can
-actually provide.
+Do not give native tools stronger semantics than the driver can actually
+provide.
 
 ## Conformance Suite
 
-Every driver should pass a shared conformance suite. The suite should test:
+Every driver passes a shared conformance suite. The suite tests:
 
 - deterministic render
 - tool schema translation
@@ -134,12 +129,12 @@ Every driver should pass a shared conformance suite. The suite should test:
 - disconnect grace expiry
 - debug bundle generation
 
-Conformance tests should be protocol-level where possible so multiple language
-implementations can share the same behavioral target.
+Conformance tests are protocol-level where possible so multiple language
+implementations share the same behavioral target.
 
 ## Local Driver
 
-A local driver is useful. It should still use the same semantics:
+A local driver uses the same semantics:
 
 - caller-owned work IDs
 - typed protocol messages, even if in-memory
@@ -148,5 +143,5 @@ A local driver is useful. It should still use the same semantics:
 - explicit native-tool capability classification
 - skill packaging path equivalent to remote mode
 
-Local mode should be a convenience implementation of the remote contract, not a
+Local mode is a convenience implementation of the remote contract, not a
 different contract.
