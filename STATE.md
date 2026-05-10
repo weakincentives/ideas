@@ -35,7 +35,7 @@ Useful event families include:
 - feedback emitted
 - tool requested
 - tool completed
-- native harness event observed
+- built-in harness event observed
 - filesystem snapshot created
 - transaction committed or rolled back
 - completion checked
@@ -74,7 +74,7 @@ Not automatically covered:
 
 - external API calls that already completed
 - messages already published
-- native harness file or shell tools unless the sandbox exposes transaction
+- built-in harness file or shell tools unless the sandbox exposes transaction
   hooks
 - filesystem writes that bypass the declared filesystem resource
 - side effects hidden in finalizers or background tasks
@@ -101,23 +101,24 @@ idempotency. A durable request is identified by:
 
 - caller-owned work identifier
 - caller-owned turn identifier
-- semantic contract hash
+- work contract hash
 
-The semantic contract includes inputs and declarations that change model
+The work contract includes inputs and declarations that change model
 behavior: prompt hash, tool schemas, model settings, structured output schema,
 workspace reference, and relevant policy configuration.
 
 Operational envelope values such as wait timeout or client connection deadline
-belong in the semantic contract only when they alter sandbox behavior. Otherwise
+belong in the work contract only when they alter sandbox behavior. Otherwise
 they are retry parameters, not a reason to create a conflict.
 
-## Native Tool Limits
+## Built-In Tool Limits
 
-Many harnesses have native file, command, search, and patch tools. A definition
-library must not overclaim control over them. There are three honest levels:
+Many harnesses have built-in file, command, search, and patch tools. A
+definition library must not overclaim control over them. There are three honest
+levels:
 
-- observe native tool events and include them in transcripts
-- gate native tools through sandbox policy
-- wrap native tools in transaction hooks exposed by the sandbox protocol
+- observe built-in tool events and include them in transcripts
+- gate built-in tools through sandbox policy
+- wrap built-in tools in transaction hooks exposed by the sandbox protocol
 
-Only the third level supports full rollback semantics.
+Only the third level supports full rollback guarantees.

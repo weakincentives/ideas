@@ -1,7 +1,7 @@
 # Skills and Runtime Assets
 
-Skills are versioned integration assets for execution substrates. They package
-the operational knowledge a harness needs in order to use a repository,
+Skills are versioned integration assets for model-harness runtimes. They
+package the operating knowledge a harness needs in order to use a repository,
 workflow, domain, or tool correctly.
 
 ## Why Skills Matter
@@ -13,7 +13,7 @@ Good harness adapters feed those conventions rather than flatten every harness
 into generic prompt text.
 
 Skills are one of the main places application teams spend effort. They turn
-local operational knowledge into reusable, testable harness input.
+local operating knowledge into reusable, testable harness input.
 
 ## Skill Contents
 
@@ -67,7 +67,7 @@ This makes a run explainable after the local checkout has moved on.
 
 ## Evaluation
 
-Skills are tested as part of the integration conformance suite. Tests cover:
+Skills are tested as part of the integration contract tests. Tests cover:
 
 - discovery
 - staging
@@ -77,7 +77,7 @@ Skills are tested as part of the integration conformance suite. Tests cover:
 - sandbox path assumptions
 - representative task performance
 
-Treat skill regressions as integration regressions, not prompt polish.
+Treat skill failures as integration failures, not prompt polish.
 
 ## Anti-Patterns
 

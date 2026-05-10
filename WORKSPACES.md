@@ -1,8 +1,8 @@
 # Workspaces
 
 The workspace is the agent's durable data plane. It is where the harness reads
-and writes files, where long-running work leaves artifacts, and where future
-turns can resume context after compute restarts.
+and writes files, where long-running work leaves outputs, and where future turns
+can resume context after compute restarts.
 
 ## Model
 
@@ -53,7 +53,7 @@ the data path does not require buffering through the control channel.
 
 Durable workspace data and evaluation-scoped scratch data are different.
 
-Durable data includes source checkout, artifacts, persistent notes, generated
+Durable data includes source checkout, outputs, persistent notes, generated
 files, and work-in-progress that future turns need.
 
 Scratch data includes temporary extraction directories, transient tool outputs,

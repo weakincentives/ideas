@@ -16,9 +16,9 @@ Sandbox Control Plane
     |
     | lifecycle, auth, routing, reconnect, workspace mount, policy
     v
-Execution Substrate
+Model-Harness Runtime
     |
-    | model loop, native tools, provider traffic
+    | model loop, built-in tools, provider traffic
     v
 Remote Workspace
 ```
@@ -52,14 +52,14 @@ least four tiers separate:
   harnesses
 - persistent workspace state in remote storage
 
-## Execution Substrate
+## Model-Harness Runtime
 
-The execution substrate owns the coupled model-harness behavior: model calls,
-planning loop, native tools, edit semantics, provider traffic, approval modes,
-and runtime recovery. It may be a CLI harness, service-hosted harness,
-protocol-compatible agent runtime, or something not yet designed.
+The model-harness runtime owns model calls, planning loop, built-in tools, edit
+behavior, provider traffic, approval modes, and runtime recovery. It may be a
+CLI harness, service-hosted harness, protocol-compatible agent runtime, or
+something not yet designed.
 
-The substrate can sit behind a stable sandbox protocol without being treated as
+The runtime can sit behind a stable sandbox protocol without being treated as
 behaviorally identical to other harnesses. Harness adapters absorb those
 differences and make them explicit.
 
@@ -68,7 +68,7 @@ or read local files from the orchestrator.
 
 ## Protocol Surface
 
-A portable sandbox protocol needs primitives for:
+A portable sandbox protocol needs operations for:
 
 - start sandbox
 - stop sandbox
@@ -82,32 +82,31 @@ A portable sandbox protocol needs primitives for:
 - read and write workspace files
 - create upload tickets for large files
 - snapshot and restore workspace state
-- list native skills or capabilities
+- list built-in skills or capabilities
 - stage or mount skills provided by harness adapters
 - close, detach, and reattach connections
 
-The protocol uses caller-owned identifiers in public payloads. Backend runtime
+The protocol uses caller-owned identifiers in public messages. Backend runtime
 identifiers can exist, but they stay private to harness adapters and the control
 plane.
 
-## Egress
+## External Access
 
-Remote sandboxes default to restricted egress.
+Remote sandboxes default to restricted network access.
 
 - Provider and model traffic can be allowed through a narrow profile.
-- Application egress uses definition tools.
-- Setup-time egress is explicit and auditable.
-- Broad egress is an exception, not the default runtime mode.
+- Application external access uses definition tools.
+- Setup-time network access is explicit and auditable.
+- Broad network access is an exception, not the default runtime mode.
 
 This makes the protocol capability-oriented rather than network-oriented.
 
 ## Local Mode
 
-Local mode supports tests and development. It emulates the same protocol
-semantics:
+Local mode supports tests and development. It emulates the same protocol rules:
 
 - caller-owned work IDs
-- semantic contract conflicts
+- work contract conflicts
 - filesystem abstraction
 - streamed events
 - tool request and completion messages

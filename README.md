@@ -1,51 +1,52 @@
 # Guiding Principles for Highly Effective Agents that Age Well
 
-Guiding principles for agent systems that use coupled model-harness substrates
-and own the integration layer around them.
+Guiding principles for agent systems built around model-harness stacks, remote
+sandboxes, durable workspaces, and explicit integration layers.
 
 This repository is a standalone set of design principles, not an implementation,
 API reference, product roadmap, or documentation set for a single project. It
-is meant to guide future agent definition libraries in any language. Local
-execution matters, but the architecture optimizes for production agents running
-in remote sandboxes backed by persistent workspaces.
+is meant to help future agent definition libraries in any language age well.
+Local execution matters, but production agents usually run in remote sandboxes
+backed by persistent workspaces.
 
 ## Thesis
 
-Effective agents are built from disciplined integration, not from a bare model
-call, clever prompt, or generic orchestration loop.
+Effective agents are not just model calls, clever prompts, or generic loops.
+They work when the model, harness, tools, workspace, skills, tests, and
+operational record fit together.
 
-The rented capability is the coupled execution substrate: model, harness loop,
-native tools, editing semantics, approval modes, transcript shape, filesystem
-assumptions, provider integration, scheduling, retries, and recovery. The model
-and harness are trained, post-trained, evaluated, and productized together.
-Treating the harness as a thin wrapper loses the behavior being rented.
+The model and harness are one stack. The model is trained, post-trained,
+evaluated, and shipped with a harness loop, built-in tools, editing behavior,
+approval modes, transcript shape, filesystem assumptions, provider integration,
+scheduling, retries, and recovery. Treating the harness as a thin wrapper loses
+the behavior that makes the agent useful.
 
-The durable work is the layer around that substrate:
+The durable work is the layer around that stack:
 
 - definitions that make prompts, tools, policies, state, resources, and output
   contracts explicit
-- harness adapters that translate application intent into harness-native
+- harness adapters that translate application intent into harness-specific
   execution
 - integration points that expose application systems as typed tools
-- skills that package operational knowledge in harness-usable form
+- skills that package operating knowledge in a form the harness can use
 - workspace protocols that make remote filesystem state durable
-- observability, evals, and conformance suites that make behavior inspectable
-  across runs and implementations
+- logs, traces, evals, and contract tests that make behavior inspectable across
+  runs and implementations
 
-An agent system has three strata.
+An agent system has three layers.
 
 - The **definition layer** describes the agent: prompt, tools, policies, state,
   resources, and outputs.
-- The **integration layer** binds definitions to a concrete substrate, sandbox,
+- The **integration layer** connects definitions to a concrete harness, sandbox,
   workspace, tools, skills, and event stream.
-- The **execution substrate** runs the coupled model-harness loop.
+- The **model-harness runtime** runs the model loop and built-in harness tools.
 
 Application teams own the definition and integration layers: definitions,
-harness adapters, tool bridges, skills, tests, evals, conformance, and
-operational evidence. Harness and sandbox platforms own the execution substrate.
-The boundary between them must preserve work identity, bridge tools without
-ambient egress, expose a durable filesystem, stream observable events, and
-reconnect without duplicating work.
+harness adapters, tool bridges, skills, tests, evals, contract tests, and
+operational evidence. Harness and sandbox platforms own the runtime. The line
+between them must preserve work identity, bridge tools without broad network
+access, expose a durable filesystem, stream observable events, and reconnect
+without duplicating work.
 
 ## Design Map
 
@@ -55,12 +56,12 @@ These files form one contract.
   repository.
 - [DEFINITION.md](DEFINITION.md) defines the portable definition model.
 - [CAPABILITIES.md](CAPABILITIES.md) covers tools, policies, feedback,
-  completion checking, and egress boundaries.
+  completion checking, and external access.
 - [SKILLS.md](SKILLS.md) treats skills as versioned integration assets.
 - [STATE.md](STATE.md) covers session state, resources, typed contracts, and
   transaction limits.
 - [REMOTE-SANDBOXES.md](REMOTE-SANDBOXES.md) describes the production topology:
-  orchestrator, sandbox control plane, harness runtime, and protocol boundary.
+  orchestrator, sandbox control plane, harness runtime, and protocol edge.
 - [WORKSPACES.md](WORKSPACES.md) defines the remote filesystem model.
 - [DURABLE-WORK.md](DURABLE-WORK.md) defines work identity, idempotency,
   reconnect, conflicts, and lifecycle separation.
@@ -69,23 +70,23 @@ These files form one contract.
 - [OBSERVABILITY.md](OBSERVABILITY.md) defines events, transcripts, snapshots,
   traces, and debug bundles.
 - [EVALUATION.md](EVALUATION.md) covers agent loops, eval loops, datasets,
-  prompt overrides, and conformance tests.
+  prompt overrides, and contract tests.
 - [GLOSSARY.md](GLOSSARY.md) names the core concepts.
 
 ## Scope
 
-This repository sits between application code and any one execution substrate.
+This repository sits between application code and any one model-harness runtime.
 It asks:
 
-- What must application teams own when model and harness are coupled?
+- What must application teams own when the model and harness are built together?
 - What belongs in an agent definition, and what belongs in the integration
   layer?
 - Which integration points and skills create durable leverage?
 - How does a client name work so retries and reconnects are safe?
 - What does a remote persistent workspace need to provide?
 - Where can transaction guarantees honestly hold?
-- How are tool calls, native tool events, and filesystem changes observed?
-- What must an integration layer prove before it conforms?
+- How are tool calls, built-in harness events, and filesystem changes observed?
+- What must an integration layer prove before it can claim the shared contract?
 
 ## Non-Goals
 
@@ -100,5 +101,5 @@ It asks:
 ## Working Rule
 
 When a future implementation has to choose between local convenience and remote
-sandbox correctness, remote correctness wins. Local mode is a degenerate case
-of the same protocol semantics, not a separate architecture.
+sandbox correctness, remote correctness wins. Local mode uses the same protocol
+rules in a simpler setting; it is not a separate architecture.

@@ -23,16 +23,15 @@ The harness owns:
 
 - model invocation
 - planning and act loop
-- native shell, file, search, and edit tools
+- built-in shell, file, search, and edit tools
 - sandboxing and lifecycle
 - provider credentials
 - retry mechanics
 - runtime-specific approval modes
-- native event formats
+- built-in event formats
 
 The integration layer maps between them. It preserves the definition's
-application semantics while respecting the execution substrate's native
-behavior.
+application behavior while respecting how the model-harness runtime works.
 
 ## Prompt as Structure
 
@@ -49,7 +48,7 @@ concatenation. The structure supports:
 - structured output declarations
 - content hashing for overrides and experiments
 
-The rendered prompt is an observable, hashable artifact attached to the work it
+The rendered prompt is an inspectable, hashable record attached to the work it
 produced.
 
 ## Sections
@@ -81,8 +80,8 @@ complete, inspectable definition.
 ## Structured Output
 
 When a run expects structured output, the definition declares it as a typed
-contract. The harness adapter may use native schema enforcement when the harness
-supports it. Otherwise it falls back to prompt instructions plus validation and
+contract. The harness adapter may use the harness's own schema support when it
+exists. Otherwise it falls back to prompt instructions plus validation and
 repair.
 
 The caller receives a typed result, not unvalidated JSON-shaped text.
@@ -104,5 +103,5 @@ differences belong in harness adapters, skill packages, and protocol shims, not
 in prompt branches.
 
 Portability does not mean identical behavior across harnesses. It means the
-same application intent can be driven through each execution substrate with the
+same application intent can be driven through each model-harness runtime with the
 differences made explicit, tested, and observable.

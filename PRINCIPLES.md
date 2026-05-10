@@ -1,21 +1,21 @@
 # Principles
 
 These are design constraints, not slogans. When designs conflict, prefer the
-one that better preserves model-harness coupling, caller-owned work identity,
-remote sandbox correctness, and observable behavior.
+one that better preserves the model-harness stack, caller-owned work identity,
+remote sandbox correctness, and evidence about what happened.
 
-## 1. Treat Model and Harness as One Substrate
+## 1. Treat Model and Harness as One Stack
 
 The stable target is not a bare model API. Modern agentic models are trained,
-post-trained, evaluated, and shipped with specific harness assumptions: tool
-protocols, edit loops, filesystem shape, approval modes, message formats, and
-recovery behavior.
+post-trained, evaluated, and shipped with a harness: tool protocols, edit
+loops, filesystem shape, approval modes, message formats, and recovery
+behavior.
 
 ## 2. Do Not Rebuild the Harness
 
-Planning loops, native tools, provider integration, scheduling, sandboxing, and
-runtime recovery belong to the harness. A definition library drives that stack,
-integrates with it, and makes it observable.
+Planning loops, built-in tools, provider integration, scheduling, sandboxing,
+and runtime recovery belong to the harness. A definition library drives that
+stack, integrates with it, and makes it observable.
 
 ## 3. Own the Definition and Integration Layers
 
@@ -24,8 +24,8 @@ policies, feedback, completion checks, state reducers, resources, output
 contracts, and evaluation fixtures.
 
 They also own the integration layer: harness adapters, tool bridges, skills,
-workspace integration, evals, conformance, and observability surfaces. That is
-where durable leverage lives.
+workspace integration, evals, contract tests, and operational evidence. That is
+where the long-term leverage lives.
 
 ## 4. The Prompt Is Executable Structure
 
@@ -42,22 +42,22 @@ an output format declares the output type. Structure makes drift harder.
 
 ## 6. Put Operating Knowledge in Skills
 
-Skills package the operational knowledge a harness needs to use a repository,
+Skills package the operating knowledge a harness needs to use a repository,
 tool, workflow, or domain correctly. They are not decorative prompt fragments.
 They are versioned integration assets that travel with the harness adapter and
 are tested against the harness.
 
 ## 7. Expose Side Effects as Tools
 
-Application egress flows through declared tools, not ambient network access
-from inside the sandbox. Every application action has a name, typed input,
-typed output, policy boundary, idempotency story, and trace.
+Application access to outside systems flows through declared tools, not broad
+network access from inside the sandbox. Every application action has a name,
+typed input, typed output, policy boundary, idempotency story, and trace.
 
-## 8. Use Policies for Invariants
+## 8. Use Policies for Rules
 
-Encode invariants, not brittle procedures. Policies fail closed and produce
-typed denial records. Feedback can guide behavior, but it does not authorize
-side effects.
+Encode rules, not brittle procedures. Policies fail closed and produce typed
+denial records. Feedback can guide behavior, but it does not authorize side
+effects.
 
 ## 9. Keep State Event-Driven
 
@@ -68,7 +68,7 @@ understand what happened.
 ## 10. Scope Transaction Claims
 
 Transactions cover only framework-owned state and snapshotable resources. They
-do not roll back completed external API calls, unwrapped native harness
+do not roll back completed external API calls, unwrapped built-in harness
 commands, or filesystem mutations outside the declared snapshot boundary.
 
 ## 11. Use Typed Contracts at Boundaries
@@ -87,7 +87,7 @@ local paths are development conveniences, not design premises.
 
 The caller supplies stable identifiers for durable work. Backend session IDs,
 provider request handles, and runtime trace tokens are private integration
-state. Public protocol payloads use caller-owned names.
+state. Public protocol messages use caller-owned names.
 
 ## 14. Transport Is Not Ownership
 
@@ -101,15 +101,15 @@ The agent workspace is not a temporary directory on the caller's machine. In
 production it is a remote, tenant-scoped, persistent filesystem mounted near
 the harness. Compute can restart without deleting it.
 
-## 16. Observability Is a Contract
+## 16. Keep Evidence for Every Run
 
 Every run emits enough typed evidence to reconstruct what happened: rendered
-definition, tool schemas, tool calls, native harness events, filesystem
+definition, tool schemas, tool calls, built-in harness events, filesystem
 snapshots or references, outputs, budgets, errors, and trace correlation.
 
-## 17. Conformance Is Proved, Not Assumed
+## 17. Contract Support Is Proved, Not Assumed
 
-An integration layer passes a shared conformance suite before claiming
-portability. The suite covers rendering, tool bridging, harness adapters,
-skills, policies, state, transactions, durable work, reconnect, observability,
-and structured output.
+An integration layer passes shared contract tests before claiming portability.
+The tests cover rendering, tool bridging, harness adapters, skills, policies,
+state, transactions, durable work, reconnect, evidence, and structured
+output.

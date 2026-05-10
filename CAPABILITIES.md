@@ -1,7 +1,7 @@
 # Capabilities
 
 Capabilities are the agent's declared ways to affect the world. Application
-side effects are named tools, not ambient access.
+side effects are named tools, not undeclared access.
 
 ## Tool Classes
 
@@ -11,20 +11,21 @@ There are two tool classes.
 orchestrator or application. They are portable across harnesses because the
 definition owns their schema, policy, result type, and documentation.
 
-**Native harness tools** are provided by the harness inside the sandbox. Common
-examples include shell, file edit, file read, search, and patch tools. They are
-not definition tools unless the harness adapter deliberately re-exposes them
-through a portable contract.
+**Built-in harness tools** are provided by the harness inside the sandbox.
+Common examples include shell, file edit, file read, search, and patch tools.
+They are not definition tools unless the harness adapter deliberately
+re-exposes them through a portable contract.
 
-The distinction matters for transactions and observability. A definition
-library can wrap definition tools. It can only observe native tools unless the
-sandbox protocol exposes control points for snapshot, policy, and rollback.
+The distinction matters for transactions and records. A definition
+library can wrap definition tools. It can only observe built-in harness tools
+unless the sandbox protocol exposes control points for snapshot, policy, and
+rollback.
 
 ## Skills
 
-Skills are capability-adjacent integration assets. A skill packages operational
-knowledge that helps the execution substrate use a repository, tool, workflow,
-or domain correctly.
+Skills are capability-adjacent integration assets. A skill packages operating
+knowledge that helps the model-harness runtime use a repository, tool,
+workflow, or domain correctly.
 
 Skills may include instructions, examples, scripts, manifests, schemas,
 fixtures, or references to definition tools. They are versioned and tested with
@@ -61,8 +62,8 @@ must reconcile with the sandbox.
 
 ## Policies
 
-Policies are fail-closed invariants. They can apply before render, before a
-tool call, after a tool call, before final output, or during reconnect.
+Policies are fail-closed rules. They can apply before render, before a tool
+call, after a tool call, before final output, or during reconnect.
 
 Good policies are small, typed, deterministic, and explainable. They produce
 denial records that can be inspected in traces and debug bundles.
@@ -85,14 +86,14 @@ workspace metadata, tool history, or structured output.
 Completion checks are deterministic when possible. LLM-as-judge can help, but
 it is a typed evaluator with its own model, threshold, prompt hash, and trace.
 
-## Egress Boundary
+## External Access
 
-Remote sandboxes restrict application egress. Model-provider traffic may be
-allowed for the harness. Application traffic flows through definition tools
-fulfilled by the orchestrator or through explicitly declared sandbox egress
-profiles.
+Remote sandboxes restrict application network access. Model-provider traffic
+may be allowed for the harness. Application traffic flows through definition
+tools fulfilled by the orchestrator or through explicitly declared sandbox
+network profiles.
 
-This creates an auditable capability surface:
+This gives reviewers a clear record:
 
 - every application action has a tool name
 - every tool call has typed input and output
@@ -103,8 +104,8 @@ This creates an auditable capability surface:
 
 - hidden global tool registries
 - prompt text that describes unavailable tools
-- skills that depend on undeclared files or ambient local paths
+- skills that depend on undeclared files or local paths
 - tools whose names or schemas depend on a single harness
 - policy decisions that are not recorded
 - broad network access from the sandbox as a substitute for tool design
-- treating native harness tools as transactional without a protocol guarantee
+- treating built-in harness tools as transactional without a protocol guarantee

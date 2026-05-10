@@ -1,7 +1,7 @@
 # Durable Work
 
-Durable work is the set of semantics that make long-running agent operations
-safe under retry, reconnect, and sandbox restart.
+Durable work is the set of rules that make long-running agent operations safe
+under retry, reconnect, and sandbox restart.
 
 ## Three Lifecycles
 
@@ -35,10 +35,10 @@ tenant scope and supplied by the caller that wants idempotency.
 
 Backend identifiers may exist internally. They are not required public handles.
 
-## Semantic Contract
+## Work Contract
 
-A turn or evaluation carries a semantic contract hash. Include values that
-change behavior:
+A turn or evaluation carries a work contract hash. Include values that change
+behavior:
 
 - user input
 - rendered prompt hash
@@ -55,10 +55,10 @@ usually make the same turn conflict with itself.
 
 ## Idempotent Start
 
-Starting work with the same public identifier and same semantic contract returns
+Starting work with the same public identifier and same work contract returns
 the current or completed work. It must not double-execute.
 
-Starting work with the same identifier and a different semantic contract returns
+Starting work with the same identifier and a different work contract returns
 an explicit conflict.
 
 Starting work with a different identifier is new work, even if the content is
@@ -77,7 +77,7 @@ grace window. Reattach returns enough state for the caller to resume:
 - workspace reference
 - conflict or ownership status
 
-The exact timeout is an operational choice. The semantic requirement is that
+The exact timeout is an operational choice. The requirement is that
 transient transport failure does not force duplicate work.
 
 ## Tool Requests

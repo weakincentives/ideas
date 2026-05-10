@@ -1,4 +1,4 @@
-# Evaluation and Conformance
+# Evaluation and Contract Tests
 
 Agent definition libraries need evaluation support because prompt and tool
 design are empirical. Iteration still needs rigor.
@@ -56,7 +56,7 @@ production. Local fixture directories are only source material.
 
 ## Evaluators
 
-Evaluators are typed functions over run artifacts. They may inspect final
+Evaluators are typed functions over run records. They may inspect final
 output, event history, workspace state, tool calls, or debug bundle data.
 
 LLM-as-judge evaluators record their own model, prompt, rubric, thresholds, and
@@ -76,13 +76,13 @@ Eval reports include:
 
 - aggregate metrics
 - per-case failures
-- regression deltas
-- tool-call and native-event summaries
+- before/after deltas
+- tool-call and built-in event summaries
 - budget summaries
 - representative transcripts
 - links or references to debug bundles
-- integration conformance failures
+- integration contract test failures
 
-The report makes it obvious whether a regression came from definition changes,
+The report makes it obvious whether worse behavior came from definition changes,
 harness adapter behavior, skill changes, harness behavior, model behavior, or
 sandbox infrastructure.
