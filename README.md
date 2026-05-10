@@ -1,8 +1,7 @@
-# Remote Agent Driver Ideas
+# The Many Habits of Highly Effective Agents
 
-This repository is a meta repository: a standalone set of design ideas for
-agent definition libraries, drivers, skills, and integration surfaces that run
-against remote agent harnesses and durable sandbox filesystems.
+Guiding principles for agent systems that rent coupled model-harness execution
+substrates and own the integration layer around them.
 
 It is not an implementation, API reference, product roadmap, or set of docs
 for any single existing project. The ideas are meant to guide future libraries
@@ -12,11 +11,16 @@ remote persistent workspaces.
 
 ## Thesis
 
-Modern agent systems are not just bare model calls with application code around
-them. The model and the agent harness are increasingly one execution substrate:
-the model is trained, post-trained, evaluated, and productized in the context of
-the harness's planning loop, native tools, editing semantics, approval modes,
-transcript shape, and filesystem expectations.
+Effective agents are not produced by a bare model call, a clever prompt, or a
+single orchestration abstraction. They come from repeated engineering
+disciplines: respecting the model-harness substrate, making capabilities
+explicit, packaging operational knowledge as skills, keeping workspaces durable,
+designing for interruption, and preserving evidence for every run.
+
+The useful substrate is the model plus the harness it was trained,
+post-trained, evaluated, and productized with: planning loop, native tools,
+editing semantics, approval modes, transcript shape, filesystem expectations,
+and recovery behavior.
 
 That coupling is not a bug to abstract away. It is the capability being rented.
 The wrong investment is rebuilding a generic planning loop or pretending every
@@ -35,9 +39,9 @@ An unattended agent system therefore has three useful strata.
 - The **definition layer** describes the agent: prompt structure, tools,
   policies, feedback, completion criteria, state, resources, and typed
   contracts.
-- The **driver and integration layer** binds the definition to a specific
-  model-harness substrate, remote sandbox, persistent workspace, tool bridge,
-  skill set, and event stream.
+- The **integration layer** binds the definition layer to a specific execution
+  substrate, remote sandbox, persistent workspace, tool bridge, skill set, and
+  event stream.
 - The **execution substrate** runs the agent: model, harness loop, native tools,
   sandbox isolation, provider traffic, lifecycle, scheduling, retries, and
   recovery.
@@ -46,11 +50,10 @@ Application teams should own the definition, drivers, integrations, skills,
 tests, and operational evidence. They should rent the execution substrate from
 harness and sandbox platforms that evolve independently.
 
-The central design requirement is that these two layers meet through an
-explicit protocol. The protocol must preserve durable work identity, expose a
-remote filesystem, bridge tools without ambient network access, stream
-observable events, and let clients reconnect without accidentally starting new
-work.
+The central design requirement is that these strata meet through explicit
+protocols. Those protocols must preserve durable work identity, expose a remote
+filesystem, bridge tools without ambient network access, stream observable
+events, and let clients reconnect without accidentally starting new work.
 
 ## Design Map
 
@@ -69,18 +72,18 @@ Read these files as one coherent contract.
 - [WORKSPACES.md](WORKSPACES.md) defines the remote persistent filesystem model.
 - [DURABLE-WORK.md](DURABLE-WORK.md) defines work identity, idempotent turns,
   reconnect, conflict handling, and lifecycle separation.
-- [DRIVERS.md](DRIVERS.md) explains how definition libraries bind to harness
-  and sandbox protocols through drivers and integration points.
+- [INTEGRATION-LAYER.md](INTEGRATION-LAYER.md) explains how definition libraries
+  bind to harness and sandbox protocols through drivers and integration points.
 - [OBSERVABILITY.md](OBSERVABILITY.md) defines events, transcripts, snapshots,
   traces, and debug bundles.
 - [EVALUATION.md](EVALUATION.md) covers agent loops, eval loops, datasets,
-  prompt overrides, and compatibility tests.
+  prompt overrides, and conformance tests.
 - [GLOSSARY.md](GLOSSARY.md) gives precise names for the concepts.
 
 ## Scope
 
-This repository is concerned with the layer above a specific coupled
-model-harness substrate and below application code. It answers questions like:
+This repository is concerned with the layer above a specific execution substrate
+and below application code. It answers questions like:
 
 - What should application teams own when the model and harness are coupled?
 - What belongs in an agent definition, and what belongs in a driver?
@@ -90,7 +93,7 @@ model-harness substrate and below application code. It answers questions like:
 - Where can transaction guarantees honestly hold?
 - How should tool calls, native tool events, and filesystem changes be
   observed?
-- What should every driver prove before it is considered portable?
+- What should every driver prove before it conforms to the shared contract?
 
 ## Non-Goals
 

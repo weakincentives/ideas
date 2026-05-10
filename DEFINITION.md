@@ -31,7 +31,7 @@ The harness owns:
 - native event formats
 
 The driver maps between them. It preserves the definition's application
-semantics while respecting the model-harness substrate's native behavior.
+semantics while respecting the execution substrate's native behavior.
 
 ## Prompt as Structure
 
@@ -104,5 +104,5 @@ belong in drivers, skill packages, and compatibility shims, not in prompt
 branches.
 
 Portability does not mean identical behavior across harnesses. It means the
-same application intent can be driven through each model-harness substrate with
-the differences made explicit, tested, and observable.
+same application intent can be driven through each execution substrate with the
+differences made explicit, tested, and observable.

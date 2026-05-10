@@ -28,8 +28,12 @@ auth, workspace mounting, durable ledgers, and reconnect semantics.
 orchestrator or application.
 
 **Driver.** Code and configuration that bind application-owned definitions,
-tools, skills, and work identifiers to a concrete model-harness substrate and
+tools, skills, and work identifiers to a concrete execution substrate and
 sandbox protocol.
+
+**Execution substrate.** Coupled model plus harness runtime: model, harness
+loop, native tools, protocol, filesystem assumptions, approval modes, and
+recovery behavior.
 
 **Durable work.** Caller-named work that survives transient disconnects,
 retries, and compute restarts.
@@ -39,10 +43,6 @@ without blocking the event.
 
 **Harness.** Runtime that owns the model act loop, native tools, provider
 integration, and sandbox-local execution.
-
-**Model-harness substrate.** Coupled execution product made from a model,
-harness loop, native tools, message protocol, filesystem assumptions, and
-runtime policies.
 
 **Native harness tool.** Capability provided by the harness, such as shell,
 file edit, search, or patch. Its semantics are harness-specific unless wrapped
@@ -71,6 +71,9 @@ examples, scripts, schemas, or runtime assets for a harness to use.
 a transaction boundary.
 
 **Structured output.** Typed output contract for final agent results.
+
+**Conformance suite.** Behavioral test suite that proves a driver implements
+the shared contract.
 
 **Tool result.** Typed success or failure returned to the agent after a tool
 call.

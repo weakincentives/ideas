@@ -1,4 +1,4 @@
-# Evaluation and Iteration
+# Evaluation and Conformance
 
 Agent definition libraries need evaluation support because prompt and tool
 design are empirical. The goal is to iterate without losing rigor.
@@ -81,7 +81,7 @@ Eval reports should include:
 - budget summaries
 - representative transcripts
 - links or references to debug bundles
-- driver compatibility failures
+- driver conformance failures
 
 The report should make it obvious whether a regression came from definition
 changes, driver behavior, skill changes, harness behavior, model behavior, or

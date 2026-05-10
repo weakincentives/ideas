@@ -1,8 +1,8 @@
 # Principles
 
-These are operative constraints, not slogans. When two designs conflict, prefer
-the one that better respects model-harness coupling, preserves durable work
-identity, and improves remote sandbox correctness.
+These are guiding principles and design constraints, not slogans. When two
+designs conflict, prefer the one that better respects model-harness coupling,
+preserves durable work identity, and improves remote sandbox correctness.
 
 ## 1. Model and Harness Are One Substrate
 
@@ -122,8 +122,8 @@ rendered definition, tool schemas, tool calls, native harness events,
 filesystem snapshots or references, outputs, budgets, errors, and trace
 correlation.
 
-## 18. Compatibility Is Proved, Not Assumed
+## 18. Conformance Is Proved, Not Assumed
 
-A driver should pass a shared compatibility suite before claiming portability.
+A driver should pass a shared conformance suite before claiming portability.
 The suite should cover rendering, tool bridging, skills, policies, state,
 transactions, durable work, reconnect, observability, and structured output.

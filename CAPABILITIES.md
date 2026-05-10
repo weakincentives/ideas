@@ -24,8 +24,8 @@ sandbox protocol exposes control points for snapshot, policy, and rollback.
 ## Skills
 
 Skills are capability-adjacent integration assets. A skill packages operational
-knowledge that helps the model-harness substrate use a repository, tool,
-workflow, or domain correctly.
+knowledge that helps the execution substrate use a repository, tool, workflow,
+or domain correctly.
 
 Skills may include instructions, examples, scripts, manifests, schemas,
 fixtures, or references to definition tools. They should be versioned and tested

@@ -1,4 +1,4 @@
-# Remote Sandboxes
+# Sandboxed Runtimes
 
 Production agent systems should assume the harness runs in a remote sandbox,
 not inside the application process.
@@ -16,7 +16,7 @@ Sandbox Control Plane
     |
     | lifecycle, auth, routing, reconnect, workspace mount, policy
     v
-Model-Harness Runtime
+Execution Substrate
     |
     | model loop, native tools, provider traffic
     v
@@ -51,11 +51,11 @@ least four tiers separate:
 - live routing state needed to connect drivers, tool requests, and harnesses
 - persistent workspace state in remote storage
 
-## Model-Harness Runtime
+## Execution Substrate
 
-The runtime owns the coupled model-harness behavior: model calls, planning
-loop, native tools, edit semantics, provider traffic, approval modes, and
-runtime recovery. It may be a CLI harness, service-hosted harness,
+The execution substrate owns the coupled model-harness behavior: model calls,
+planning loop, native tools, edit semantics, provider traffic, approval modes,
+and runtime recovery. It may be a CLI harness, service-hosted harness,
 protocol-compatible agent runtime, or something not yet designed.
 
 It should be replaceable behind a stable sandbox protocol, but not treated as

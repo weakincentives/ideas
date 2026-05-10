@@ -1,8 +1,8 @@
-# Skills
+# Skills and Runtime Assets
 
-Skills are versioned integration assets for coupled model-harness substrates.
-They package the operational knowledge a harness needs in order to use a
-repository, workflow, domain, or tool correctly.
+Skills are versioned integration assets for execution substrates. They package
+the operational knowledge a harness needs in order to use a repository,
+workflow, domain, or tool correctly.
 
 ## Why Skills Matter
 
@@ -66,7 +66,7 @@ This makes a run explainable after the local checkout has moved on.
 
 ## Evaluation
 
-Skills should be tested as part of the driver compatibility suite. Tests should
+Skills should be tested as part of the driver conformance suite. Tests should
 cover:
 
 - discovery

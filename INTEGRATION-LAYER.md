@@ -1,10 +1,9 @@
-# Drivers and Integration Points
+# Integration Layer
 
 Drivers bind application-owned definitions and tools to a coupled
-model-harness substrate. They are not thin translation layers over a generic
-model API.
-They are product code at the boundary where application semantics meet harness
-semantics.
+execution substrate. They are not thin translation layers over a generic model
+API. They are product code at the boundary where application semantics meet
+harness semantics.
 
 ## Why Drivers Matter
 
@@ -48,17 +47,18 @@ The driver should not contain business logic that belongs in the definition or
 application. It should contain integration logic that belongs at the
 harness/protocol boundary.
 
-## Two Driver Layers
+## Two Integration Boundaries
 
-In a remote sandbox architecture there are often two driver layers.
+In a remote sandbox architecture there are often two integration boundaries.
 
-**Definition driver.** Lives with the definition library. It knows how to render
-definitions, expose application tools, package skills, and interpret canonical
-events.
+**Definition-side driver.** Lives with the definition library. It knows how to
+render definitions, expose application tools, package skills, and interpret
+canonical events.
 
-**Harness driver.** Lives near the sandbox control plane. It knows how to run a
-specific harness, translate native events, manage private backend session IDs,
-connect the harness to the sandbox protocol, and apply sandbox-local policy.
+**Harness-side driver.** Lives near the sandbox control plane. It knows how to
+run a specific harness, translate native events, manage private backend session
+IDs, connect the harness to the sandbox protocol, and apply sandbox-local
+policy.
 
 This split keeps application definitions portable while allowing deep harness
 integration.
@@ -115,9 +115,9 @@ Every harness has native capabilities. Drivers should classify them:
 Do not pretend native tools have stronger semantics than the driver can
 actually provide.
 
-## Compatibility Suite
+## Conformance Suite
 
-Every driver should pass a shared compatibility suite. The suite should test:
+Every driver should pass a shared conformance suite. The suite should test:
 
 - deterministic render
 - tool schema translation
@@ -134,8 +134,8 @@ Every driver should pass a shared compatibility suite. The suite should test:
 - disconnect grace expiry
 - debug bundle generation
 
-Compatibility tests should be protocol-level where possible so multiple
-language implementations can share the same behavioral target.
+Conformance tests should be protocol-level where possible so multiple language
+implementations can share the same behavioral target.
 
 ## Local Driver
 

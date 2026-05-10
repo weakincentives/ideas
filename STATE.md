@@ -1,4 +1,4 @@
-# State and Transactions
+# State, Transactions, and Idempotency
 
 State is the durable memory of a run. Transactions are scoped guarantees about
 which mutations survive failure. Both need clear boundaries.
