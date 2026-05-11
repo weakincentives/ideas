@@ -16,11 +16,11 @@ Effective agents are not just model calls, clever prompts, or generic loops.
 They work when the application, definition, harness, sandbox, workspace, skills,
 tests, and run records fit together.
 
-The model and harness are one stack. The model is trained, evaluated, and
-shipped with a harness loop, built-in tools, editing behavior, approvals,
-transcripts, filesystem assumptions, provider integration, scheduling, retries,
-and recovery. Treating the harness as a thin wrapper around a model API loses
-much of the behavior that makes the agent useful.
+For the systems this repository targets, the model and harness are one stack.
+The model is used through a harness loop, built-in tools, editing behavior,
+approvals, transcripts, filesystem assumptions, provider integration,
+scheduling, retries, and recovery. Treating the harness as a thin wrapper around
+a model API loses much of the behavior that makes the agent useful.
 
 Application teams should not spend most of their time rebuilding that harness
 loop. The durable work is around the harness: connecting application intent to a
@@ -100,8 +100,8 @@ State, run records, evals, and contract tests support the layers above. They are
 not another place to put application intent or harness behavior.
 
 State records what the library needs to remember. Run records explain what
-happened. Evals compare behavior. Contract tests prove that an integration layer
-implements the shared expectations.
+happened. Evals compare behavior. Contract tests verify that an integration
+layer follows shared expectations.
 
 ## Do Not Mix These Up
 

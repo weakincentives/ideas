@@ -40,16 +40,17 @@ raw output. They can help, but they do not get special authority.
 
 ## Contract Tests
 
-Contract tests prove that an integration layer implements the shared behavior.
+Contract tests verify that an integration layer implements the shared behavior.
 They cover both integration directions.
 
-Application-facing tests cover definition rendering, tool schema translation,
-tool call completion, policy denial, feedback delivery, structured output
-validation, and output handling.
+Application-facing tests cover binding application tools, policies, resources,
+work names, eval fixtures, output consumers, tool call completion, policy
+denial, feedback delivery, structured output validation, and output handling.
 
-Runtime-facing tests cover skill packaging, built-in event translation,
-supported transaction behavior, workspace upload and read/write, duplicate
-starts, reconnect, disconnect grace expiry, and debug bundle generation.
+Runtime-facing tests cover definition rendering for a harness, tool schema
+rendering, skill packaging, built-in event translation, supported transaction
+behavior, workspace upload and read/write, duplicate starts, reconnect,
+disconnect grace expiry, and debug bundle generation.
 
 ## Prompt Overrides
 

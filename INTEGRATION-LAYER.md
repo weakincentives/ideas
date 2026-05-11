@@ -13,9 +13,9 @@ The agent definition sits between these directions.
 
 ## Why It Exists
 
-A harness is not a neutral shell around a model. The model is trained and
-evaluated with the harness's tools, edit loop, files, approvals, transcripts,
-and recovery behavior.
+For the systems this repository targets, a harness is not a neutral shell around
+a model. The useful behavior comes from the model as used through the harness's
+tools, edit loop, files, approvals, transcripts, and recovery behavior.
 
 The integration layer lets an application use that harness without hard-coding
 the application to one harness. It also keeps the harness from reaching directly

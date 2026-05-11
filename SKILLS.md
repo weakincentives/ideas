@@ -8,9 +8,9 @@ to hide application side effects or business logic.
 
 ## Why Skills Matter
 
-If the model and harness are trained and evaluated together, the shape of the
-context matters. A harness may have its own rules for finding skills, mounting
-files, reading manifests, running helper scripts, and showing examples.
+When a model is used through a harness, the shape of the context matters. A
+harness may have its own rules for finding skills, mounting files, reading
+manifests, running helper scripts, and showing examples.
 
 Good harness adapters feed those rules. They do not flatten every skill into a
 generic prompt block.

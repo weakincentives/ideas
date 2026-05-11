@@ -6,9 +6,10 @@ work safe, and leave enough records to understand what happened.
 
 ## 1. Treat Model and Harness as One Stack
 
-The stable target is not a bare model API. Modern agentic models are trained,
-evaluated, and shipped with a harness: tool protocols, edit loops, filesystem
-shape, approval modes, message formats, and recovery behavior.
+For the systems this repository targets, the stable target is not a bare model
+API. The useful behavior comes from a model used through a harness: tool
+protocols, edit loops, filesystem shape, approval modes, message formats, and
+recovery behavior.
 
 ## 2. Do Not Rebuild the Harness
 

@@ -9,16 +9,24 @@ to.
 
 ## Shape
 
-The usual shape has five pieces.
+The usual shape has seven pieces.
 
 ```
 Application Layer
     |
     | tools, policies, resources, work names
     v
+Application-Facing Integration
+    |
+    | definition inputs
+    v
 Agent Definition
     |
-    | rendered by runtime-facing integration
+    | rendered definition
+    v
+Runtime-Facing Integration / Harness Adapter
+    |
+    | harness format, skills, events, tool routing
     v
 Sandbox Control Plane
     |

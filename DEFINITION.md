@@ -92,11 +92,14 @@ unreviewed production configuration channel.
 
 ## Cross-Harness Test
 
-A definition is ready when it can be rendered, inspected, evaluated, and run
-against more than one harness adapter without changing definition code. Harness
-differences belong in harness adapters, skill packages, and sandbox protocols,
-not in prompt branches.
+A definition is ready when the same application intent and declared capabilities
+can be rendered, inspected, evaluated, and run against more than one harness
+adapter without changing definition code.
 
 Cross-harness support does not mean identical behavior. It means the same
 application intent can be driven through each model-harness runtime, with the
 differences made explicit, tested, and visible.
+
+It also does not mean flattening harnesses into the lowest common denominator.
+Harness-specific rendering, skills, events, limits, and failure modes belong in
+harness adapters, skill packages, and sandbox protocols, not in prompt branches.
