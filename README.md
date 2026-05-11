@@ -13,6 +13,33 @@ intermediate files into a persistent workspace, updating a dashboard, and
 leaving enough records that a human can later defend every number. That is
 the shape of work this repository has in mind.
 
+## What "Ages Well" Means
+
+"Ages well" is a specific claim, not a mood. It means the agent keeps
+producing defensible work as the pieces around it move: model upgrades,
+harness version drift, skill and metric changes, data source evolution, and
+deployment moves. The goal is portability across those upgrades without
+silent behavior shifts.
+
+Every principle and chapter in this repository exists to support that
+property. A design that does not survive a model upgrade, a harness change,
+or a metric redefinition is not ageing well, regardless of how clean the
+code looks on the day it ships.
+
+## Audience and Threat Model
+
+This repository is written for **platform teams serving product teams in a
+multi-tenant deployment**. The implicit environment has partially trusted
+inputs, multiple tenants sharing infrastructure, data boundaries that
+matter, and reviewers who expect to defend analytical outputs later.
+
+Several principles — remote-first sandboxing, egress control, named tools
+in place of broad network access, stable public work identifiers, and
+records discipline — follow from this threat model rather than from any
+universal claim. A single-tenant deployment inside a trusted VPC against a
+trusted warehouse may reasonably weaken some of these rules; the corpus
+does not, because it is written for the harder case.
+
 ## Core Idea
 
 For this class of agent, the useful system is not a bare model call and not

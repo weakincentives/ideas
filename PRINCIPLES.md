@@ -1,10 +1,15 @@
 # Principles
 
-These rules govern the rest of the corpus. They are written for unattended
-background agents that do analytical work: reading repositories, writing code,
-running queries, producing durable outputs, and leaving evidence that other
-people can review. Treat them as claims, not options. Every other chapter in
-this repository should be readable as a consequence of the rules below.
+These rules govern the rest of the corpus. They are written for platform
+teams running unattended analytical agents in multi-tenant deployments:
+agents that read repositories, write code, run queries, produce durable
+outputs, and leave evidence that other people can review.
+
+The rules target a specific property — **portability across upgrades**. A
+definition should keep producing defensible work as models, harness
+versions, skills, metrics, and data sources move underneath it, without
+silent behavior shifts. Treat the rules as claims, not options. Every other
+chapter in this repository should be readable as a consequence of them.
 
 ## 1. Treat the Model and Harness as One Runtime
 
