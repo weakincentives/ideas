@@ -8,6 +8,10 @@ expected.
 repositories, writes code, runs queries, produces durable outputs, and leaves
 records that make the result reviewable.
 
+**Analytical job.** Query, code execution, report generation, dashboard update,
+or other long-running analytical action with status, outputs, records, and
+possibly cancellation.
+
 **Application-facing integration.** Code that binds application systems into the
 agent definition: tools, query engines, policies, resources, output consumers,
 and eval fixtures.
@@ -16,12 +20,12 @@ and eval fixtures.
 edit, search, or patch. Its behavior is harness-specific unless wrapped by the
 harness adapter.
 
-**Definition tool.** Tool declared by the agent definition and fulfilled through
-application-facing integration.
-
 **Data tool.** Definition tool that reads, queries, writes, or publishes through
 an application data system, such as a warehouse, object store, dashboard, or
 application database.
+
+**Definition tool.** Tool declared by the agent definition and fulfilled through
+application-facing integration.
 
 **Durable work.** Work with stable public identity that survives transient
 disconnects, retries, and compute restarts.
@@ -29,14 +33,17 @@ disconnects, retries, and compute restarts.
 **Harness adapter.** Runtime-facing integration code that translates a
 definition into one harness's rules and formats.
 
+**Metric definition.** Business meaning, owner, filters, freshness rules, and
+data limits that make an analytical result interpretable.
+
 **Model-harness runtime.** The model plus the harness that runs it: model calls,
-harness loop, built-in tools, protocol, filesystem assumptions, approvals, and
-recovery behavior. Examples include Codex with OpenAI coding models, and Claude
-Code or the Claude Agent SDK with Anthropic models.
+harness loop, built-in tools, filesystem assumptions, approvals, and recovery
+behavior. Examples include Codex with OpenAI coding models, and Claude Code or
+the Claude Agent SDK with Anthropic models.
 
 **Remote sandbox.** Isolated runtime environment that runs the harness and its
-workspace outside the application process. Cloudflare Sandboxes are one concrete
-example.
+workspace outside the application process. Cloudflare Sandboxes are one
+concrete example.
 
 **Run record.** Event, transcript, trace, debug bundle, or related record that
 helps reconstruct what happened during a run.

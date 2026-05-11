@@ -1,45 +1,51 @@
 # Agent Definitions
 
-An agent definition sits between the application layer and the runtime
-environment. It describes what the agent is supposed to do, what it may use,
-which rules apply, and what output is expected.
+An agent definition is the middle layer. It says what the agent should do, what
+it may use, which rules apply, what output is expected, and which data or
+runtime requirements affect behavior.
 
-The definition is not the application. It does not own product storage, business
-logic, auth systems, or final output delivery.
+The definition is not the application. It does not own product storage,
+business logic, authorization systems, metric ownership, or final output
+delivery.
 
-The definition is also not the harness. It does not own model calls, the act
-loop, built-in tools, sandbox lifecycle, provider credentials, or runtime event
+The definition is not the harness. It does not own model calls, the model loop,
+built-in tools, sandbox lifecycle, provider credentials, or runtime event
 formats.
 
-## What the Definition Declares
+The definition can still declare requirements. For example, it may require a
+persistent workspace, query access, structured output, approval before delivery,
+or review when cost crosses a threshold. Declaring a requirement is different
+from depending on one harness's private implementation.
 
-The definition declares:
+## What It Declares
+
+A definition declares:
 
 - prompt structure
 - sections and visibility rules
 - declared tools
+- required skills
 - policies
 - feedback
 - completion checks
 - structured output
 - resource requirements
+- data and query requirements
 - state that is meaningful to the agent
 
 Application-facing integration binds those declarations to real application
-systems: tool handlers, authorization checks, data sources, output consumers,
-and eval fixtures.
-
-For analytical agents, the definition also declares the data and query
-capabilities the agent may use, the checks that decide whether an answer is
-complete, and the output shape expected from the analysis.
+systems: tool handlers, authorization checks, data sources, metric definitions,
+output consumers, and eval fixtures.
 
 Runtime-facing integration renders those declarations into a real harness and
 sandbox through a harness adapter.
 
 ## Prompt as Structure
 
-A prompt is rendered from typed structure, not assembled through ad hoc string
-concatenation. The structure gives the renderer:
+A prompt is rendered from typed structure. It is not assembled through ad hoc
+string concatenation.
+
+The structure gives the renderer:
 
 - stable ordering
 - nested sections
@@ -57,7 +63,7 @@ The rendered prompt is an inspectable record attached to the work it produced.
 A section is the main unit of composition. It can carry instructions, child
 sections, tools, policies, feedback, resources, examples, and visibility rules.
 
-Sections keep related things together. A tool appears near the instructions that
+Sections keep related content together. A tool appears near the instructions that
 teach the agent how to use it. A policy appears near the behavior it constrains.
 A completion check appears near the output it validates.
 
@@ -70,12 +76,30 @@ Progressive disclosure applies to text and capability:
 
 - hidden sections may become visible after an expansion request
 - detailed examples may be withheld until needed
-- expensive tools may be unavailable until the agent reaches the phase that
-  needs them
+- expensive tools may be unavailable until the phase that needs them
 - expansion events are recorded
 
 This is not secrecy. It keeps active context small while preserving a complete
 definition that can be inspected later.
+
+## Data and Runtime Requirements
+
+Analytical agents often depend on data and runtime conditions that are easy to
+miss. A definition may need to declare:
+
+- data sources or metrics the agent may use
+- freshness rules
+- privacy or row-level limits
+- result-size expectations
+- query cost limits
+- required workspace shape
+- required built-in harness tools
+- required skill packages
+- approval or review checks
+- final delivery rules
+
+These requirements make behavior explicit. The harness adapter and application
+integration either satisfy them, deny the run, or report a visible limitation.
 
 ## Structured Output
 
@@ -87,23 +111,28 @@ The caller receives a typed result, not unvalidated JSON-shaped text.
 
 ## Overrides
 
-Prompt iteration does not silently mutate source definitions. An override
+Prompt iteration should not silently mutate source definitions. An override
 targets a stable content hash or structural path, records authorship and
 experiment metadata, and fails loudly if the base content changed.
 
 Overrides are support machinery around the definition. They must not become an
 unreviewed production configuration channel.
 
-## Cross-Harness Test
+## Cross-Harness Readiness
 
-A definition is ready when the same application intent and declared capabilities
-can be rendered, inspected, evaluated, and run against more than one harness
-adapter without changing definition code.
+A definition is ready for more than one harness when the same application
+intent and declared capabilities can be rendered, inspected, evaluated, and run
+against each supported harness adapter without changing definition code.
 
-Cross-harness support does not mean identical behavior. It means the same
-application intent can be driven through each model-harness runtime, with the
-differences made explicit, tested, and visible.
+This does not mean identical behavior. It means the same intent can be driven
+through each model-harness runtime, with differences made explicit, tested, and
+visible.
 
 It also does not mean flattening harnesses into the lowest common denominator.
 Harness-specific rendering, skills, events, limits, and failure modes belong in
 harness adapters, skill packages, and sandbox protocols, not in prompt branches.
+
+A harness adapter should not fake unsupported behavior. If a definition requires
+tool streaming, workspace snapshots, structured output, approval gates, or a
+data-access path that a harness cannot support, that limit should be visible and
+tested.

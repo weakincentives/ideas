@@ -1,6 +1,6 @@
 # Sandboxed Runtimes
 
-Production agent systems usually run the harness in a remote sandbox, not inside
+Production analytical agents usually run the harness in a sandbox, not inside
 the application process.
 
 This file starts on the runtime side of the agent definition. It describes the
@@ -9,12 +9,12 @@ to.
 
 ## Shape
 
-The usual shape has seven pieces.
+The usual shape has these pieces:
 
 ```
 Application Layer
     |
-    | tools, policies, resources
+    | tools, policies, resources, output sinks
     v
 Application-Facing Integration
     |
@@ -22,7 +22,7 @@ Application-Facing Integration
     v
 Agent Definition
     |
-    | rendered definition
+    | rendered definition and requirements
     v
 Runtime-Facing Integration / Harness Adapter
     |
@@ -30,7 +30,7 @@ Runtime-Facing Integration / Harness Adapter
     v
 Sandbox Control Plane
     |
-    | lifecycle, auth, routing, reconnect, workspace mount, policy
+    | lifecycle, auth, reconnect, workspace mount, policy
     v
 Model-Harness Runtime
     |
@@ -39,22 +39,21 @@ Model-Harness Runtime
 Remote Workspace
 ```
 
-Local development may collapse pieces, but the rules still behave as if the
-harness and workspace are remote.
+Local development may collapse pieces, but the rules should still behave as if
+the harness and workspace are remote.
 
-Cloudflare Sandboxes are one concrete example of the runtime side. They provide
-an isolated filesystem, dedicated containerized compute, lifecycle operations,
-command execution, file operations, and network policy. Those pieces are useful,
-but they do not remove the need for an agent-level protocol around work
-identity, reconnect, tool routing, workspace persistence, network access, and
+Cloudflare Sandboxes are one concrete runtime example. They can provide
+filesystem isolation, dedicated compute, lifecycle operations, command
+execution, file operations, and granular network policy. Those pieces are
+useful, but they do not replace the agent-level protocol for work identity,
+reconnect, tool routing, workspace persistence, data access, egress control, and
 run records.
 
 ## Application Boundary
 
-The application layer owns the definition inputs and handlers for definition
-tools.
+The application owns the definition inputs and handlers for definition tools.
 
-The sandbox does not need direct access to application-local paths, processes,
+The sandbox should not need direct access to application-local paths, processes,
 or private services. It reaches application behavior through declared tool
 requests.
 
@@ -66,7 +65,7 @@ tools or explicit network profiles, with records that explain what happened.
 
 The control plane owns sandbox lifecycle and protocol state. It starts and stops
 compute, mounts workspaces, authenticates callers, routes messages, tracks
-active turns, stores durable ledgers, enforces sandbox policy, and handles
+active turns, stores runtime ledgers, enforces sandbox policy, and handles
 reconnect.
 
 Control-plane state is not definition state. A clear design keeps these records
@@ -79,16 +78,15 @@ separate:
 
 ## Model-Harness Runtime
 
-The model-harness runtime owns model calls, planning loop, built-in tools, edit
+The model-harness runtime owns model calls, the model loop, built-in tools, edit
 behavior, provider traffic, approvals, and recovery. It may be a CLI harness, a
-hosted harness, a protocol-compatible agent runtime, or something not yet
-designed.
+hosted harness, a protocol-compatible runtime, or something not yet designed.
 
 The runtime can sit behind a stable sandbox protocol without being treated as
 identical to other harnesses. Harness adapters absorb the differences and make
 them explicit.
 
-The definition library does not assume the harness can call in-process
+The definition library should not assume the harness can call in-process
 functions or read local files from the application layer.
 
 ## Protocol Shape
@@ -121,7 +119,8 @@ Remote sandboxes default to restricted network access.
 
 - Provider and model traffic can be allowed through a narrow profile.
 - Application external access uses definition tools.
-- Setup-time network access is explicit and auditable.
+- Data-system access uses declared tools or explicit network profiles.
+- Setup-time network access is explicit and recorded.
 - Broad network access is an exception, not the default runtime mode.
 
 This makes the protocol tool-oriented rather than network-oriented.
@@ -130,7 +129,7 @@ This makes the protocol tool-oriented rather than network-oriented.
 
 Local mode supports tests and development. It follows the same rules:
 
-- stable idempotency keys
+- stable work identifiers
 - work contract conflicts
 - filesystem abstraction
 - streamed events

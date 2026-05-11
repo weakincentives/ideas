@@ -4,8 +4,8 @@ A skill packages operating knowledge for a model-harness runtime. It teaches the
 harness how to use a repository, workflow, data source, domain, or tool
 correctly.
 
-Skills are runtime-facing. They help the harness operate; they are not a place
-to hide application side effects or business logic.
+Skills are runtime-facing. They help the harness operate. They are not a place
+to hide application side effects, data access, or business logic.
 
 ## Why Skills Matter
 
@@ -16,10 +16,10 @@ manifests, running helper scripts, and showing examples.
 Good harness adapters feed those rules. They do not flatten every skill into a
 generic prompt block.
 
-Skills are one of the main places application teams spend effort. They turn
-local operating knowledge into reusable, testable harness input: repository
-conventions, metric definitions, safe query patterns, reporting expectations,
-and validation habits.
+Skills are one of the main places application teams spend real effort. They
+turn local operating knowledge into reusable, testable harness input:
+repository conventions, safe query patterns, metric definitions, reporting
+expectations, and validation habits.
 
 ## Skill Contents
 
@@ -51,7 +51,7 @@ Skills explain how to operate. Tools perform application and data-system
 actions.
 
 A skill can tell the harness when and how to call a definition tool. The tool
-still needs a typed schema, policy, result shape, and idempotency behavior.
+still needs a typed schema, policy, result shape, retry behavior, and records.
 
 A skill can explain how to inspect data, avoid expensive queries, validate
 joins, compare cohorts, or interpret a metric. The query still runs through a
@@ -60,6 +60,21 @@ declared query tool with permissions, budgets, and records.
 A skill can include scripts or helper files. If those scripts mutate the
 workspace or call the network, the harness adapter and sandbox policy make that
 visible.
+
+## Data Knowledge
+
+Analytical skills often carry data knowledge:
+
+- which metric definition is current
+- which owner understands a table
+- which freshness rule matters for a report
+- which joins are usually wrong
+- which privacy filters always apply
+- which warehouse settings affect results
+
+That knowledge helps the agent operate. It does not replace records. Tools and
+run records still need to capture which metric, schema, data source, or skill
+version was used.
 
 ## Remote Staging
 

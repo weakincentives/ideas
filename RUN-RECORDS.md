@@ -3,15 +3,16 @@
 Every run needs enough records to reconstruct what happened. A run that cannot
 be reconstructed was not observed in any useful sense.
 
-Run records are cross-cutting. They are emitted by all layers, but they should
-not become another place to put application intent or harness behavior.
+Run records are emitted by all layers. They should not become another place to
+put application intent or harness behavior.
 
-## Records by Source
+## Records by Layer
 
 **Definition records** show what the agent was asked to do:
 
 - rendered definition and prompt hash
 - declared tool schemas
+- required skills
 - policy and feedback configuration
 - structured output shape
 - completion checks
@@ -23,6 +24,7 @@ not become another place to put application intent or harness behavior.
 - query execution records
 - data source, schema, metric, or dataset references
 - data freshness and permission decisions
+- cost, review, escalation, and delivery decisions
 - policy decisions
 - resource references
 - output delivery records
@@ -92,6 +94,8 @@ A debug bundle contains enough to reproduce or explain a run:
 - query text or redacted query reference
 - query execution IDs and result references
 - data source, schema, metric, or dataset versions
+- freshness checks and access decisions
+- cost, review, and delivery decisions
 - policy and completion results
 - validation checks
 - tool schemas and tool results
@@ -101,7 +105,7 @@ A debug bundle contains enough to reproduce or explain a run:
 Bundles avoid embedding secrets. References to remote files or records are fine
 when retention and access are clear.
 
-## Trace Propagation
+## Trace Links
 
 Trace context crosses:
 
@@ -123,3 +127,9 @@ transcripts. Debug bundles record which referenced files or records may expire.
 
 Retention is explicit so evaluation results remain interpretable after large raw
 records are cleaned up.
+
+For analytical work, useful evidence is often sensitive. Records may need
+redaction, sampling, encryption, access control, short raw-data retention,
+references instead of embedded data, and deletion rules. A run should remain
+reviewable after sensitive raw data expires, even if it cannot be fully
+replayed.

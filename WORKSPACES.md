@@ -1,12 +1,12 @@
 # Workspaces
 
-The workspace is the remote filesystem the agent uses while it works. The
-harness reads and writes files there, long-running work leaves outputs there,
-and future turns resume from it after compute restarts.
+The workspace is the filesystem the agent uses while it works. The harness
+reads and writes files there, long-running work leaves outputs there, and future
+turns resume from it after compute restarts.
 
-The workspace is where the agent works. It is not necessarily where the source
-of truth lives. Analytical systems may live in warehouses, object stores,
-feature stores, notebooks, dashboards, application databases, or external APIs.
+The workspace is where the agent works. It is not necessarily where analytical
+truth lives. The truth may live in warehouses, object stores, feature stores,
+notebooks, dashboards, application databases, or external APIs.
 
 ## Model
 
@@ -62,7 +62,7 @@ the data path does not require buffering through the control channel.
 
 Durable workspace data and scratch data are different.
 
-Durable data includes source checkout, outputs, persistent notes, generated
+Durable data includes source checkouts, outputs, persistent notes, generated
 files, query result references, reports, and work-in-progress that future turns
 need.
 
@@ -95,16 +95,16 @@ cannot honestly claim rollback.
 ## Workspace Identity
 
 Workspace identity combines tenant, sandbox, repository or project, and durable
-work identity. The exact tuple is platform-specific, but the required property is
-simple: two tenants must not collide, and two independent units of work do not
-accidentally share mutable files.
+work identity. The exact tuple is platform-specific, but the required property
+is simple: two tenants must not collide, and two independent units of work do
+not accidentally share mutable files.
 
 Shared workspaces are allowed when explicitly declared. Sharing is part of the
 work contract, not an accident of path reuse.
 
-For analytical work, workspace identity is not a substitute for data lineage. A
-run record still needs to identify which data source, schema, metric version,
-query execution, or result handle supported the final output.
+For analytical work, workspace identity is not data lineage. A run record still
+needs to identify which data source, schema, metric version, query execution, or
+result handle supported the final output.
 
 ## Skills and Runtime Files
 

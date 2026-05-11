@@ -30,10 +30,22 @@ Events are append-only evidence. They record what happened even when state rolls
 back. A failed tool call may leave no committed state change, but the failure
 event itself remains.
 
-Useful event families include definition render, tool declaration, policy
-decision, feedback, tool request, tool completion, built-in harness event,
-filesystem snapshot, query execution, data freshness check, transaction result,
-completion check, and output.
+Useful event families include:
+
+- definition render
+- tool declaration
+- policy decision
+- feedback
+- tool request
+- tool completion
+- built-in harness event
+- filesystem snapshot
+- query execution
+- data freshness check
+- review or delivery decision
+- transaction result
+- completion check
+- output
 
 ## Resources
 
@@ -43,7 +55,7 @@ provider, or test fixture.
 
 Resources are scoped to a process, session, turn, tool call, or evaluation.
 Snapshotable resources may participate in transaction rollback. Other resources
-need idempotency keys or compensating actions.
+need safe retry behavior or compensating actions.
 
 ## Transaction Scope
 
@@ -66,7 +78,7 @@ Not automatically covered:
 - filesystem writes that bypass the declared filesystem resource
 - side effects hidden in finalizers or background tasks
 
-For request-level idempotency, see [DURABLE-WORK.md](DURABLE-WORK.md).
+For request-level retry behavior, see [DURABLE-WORK.md](DURABLE-WORK.md).
 
 ## Tool Transactions
 

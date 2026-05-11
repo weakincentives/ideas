@@ -1,15 +1,24 @@
 # Evaluation and Contract Tests
 
 Evaluation is a support surface. It does not define application intent and it
-does not run the harness directly. It compares completed or repeatable
-analytical work using definitions, datasets, run records, and contract tests.
+does not run the harness directly. It compares completed or repeatable work
+using definitions, datasets, run records, and contract tests.
 
 ## Eval Loop
 
-An eval loop runs agent work against a dataset. It tracks dataset version,
-definition version, prompt override set, harness adapter and harness versions,
-model settings, skill versions, workspace seed, evaluator versions, random seeds
-or time injection settings, and result metrics.
+An eval loop runs agent work against a dataset. It tracks:
+
+- dataset version
+- definition version
+- prompt override set
+- harness adapter and harness versions
+- model settings
+- skill versions
+- workspace seed
+- evaluator versions
+- random seeds or time injection settings
+- data source fixture or metric versions
+- result metrics
 
 Evaluations should be repeatable enough to compare changes while accepting that
 model behavior may still vary.
@@ -38,8 +47,14 @@ event history, workspace state, tool calls, query results, generated outputs, or
 debug bundle data.
 
 Analytical evaluators may check known-answer cases, synthetic datasets, query
-result validation, statistical sanity checks, reproducibility, lineage, and
-cost or performance budgets.
+result validation, statistical sanity checks, reproducibility, lineage, and cost
+or performance budgets.
+
+Analytical judgment is not always a single right answer. Evals should separate
+factual correctness, query correctness, data sufficiency, reasoning quality,
+causal claims, business judgment, and presentation quality. A good outcome may
+be "the data is insufficient" when the evidence does not support the requested
+answer.
 
 LLM-as-judge evaluators record their own model, prompt, rubric, thresholds, and
 raw output. They can help, but they do not get special authority.
@@ -49,15 +64,32 @@ raw output. They can help, but they do not get special authority.
 Contract tests verify that an integration layer implements the shared behavior.
 They cover both integration directions.
 
-Application-facing tests cover binding application tools, policies, resources,
-query engines, retry behavior, eval fixtures, output consumers, tool call
-completion, policy denial, feedback delivery, structured output validation, and
-output handling.
+Application-facing tests cover:
 
-Runtime-facing tests cover definition rendering for a harness, tool schema
-rendering, skill packaging, built-in event translation, supported transaction
-behavior, workspace upload and read/write, duplicate starts, reconnect,
-disconnect grace expiry, and debug bundle generation.
+- binding application tools
+- binding policies and resources
+- query engines and data tools
+- retry behavior
+- eval fixtures
+- output consumers
+- tool call completion
+- policy denial
+- feedback delivery
+- structured output validation
+- review and delivery rules
+
+Runtime-facing tests cover:
+
+- definition rendering for a harness
+- tool schema rendering
+- skill packaging
+- built-in event translation
+- supported transaction behavior
+- workspace upload and read/write
+- duplicate starts
+- reconnect
+- disconnect grace expiry
+- debug bundle generation
 
 ## Prompt Overrides
 

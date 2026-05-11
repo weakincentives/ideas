@@ -2,6 +2,10 @@
 
 Durable work survives retry, reconnect, and sandbox restart.
 
+For unattended analytical agents, this matters because work may be expensive,
+long-running, and hard to repeat safely. A disconnected client should not force
+a query, code run, or report build to start over by accident.
+
 ## Three Lifecycles
 
 Keep these lifecycles separate.
@@ -30,7 +34,7 @@ Durable work uses stable public identifiers. Typical identifiers:
 - workspace key
 
 Names do not need to be globally meaningful. They need to be stable inside the
-tenant scope and supplied by the caller that wants idempotency.
+tenant scope and supplied by the caller that wants safe retries.
 
 Backend identifiers may exist internally. They are not required public handles.
 
@@ -46,13 +50,15 @@ behavior:
 - structured output schema
 - workspace reference
 - relevant policies
+- relevant skills
+- data sources or metric versions that affect results
 - relevant memory or transcript replay settings
 
 Do not include values that only change client waiting behavior unless they
 change sandbox execution. For example, a shorter client wait timeout does not
 usually make the same turn conflict with itself.
 
-## Idempotent Start
+## Safe Start
 
 Starting work with the same public identifier and same work contract returns the
 current or completed work. It must not double-execute.
@@ -84,9 +90,8 @@ transport failure does not force duplicate work.
 When the harness requests a definition tool, the sandbox protocol routes the
 request to the connected caller or an equivalent tool executor.
 
-Tool requests need stable call identifiers. Completion is idempotent:
-resubmitting the same tool result after reconnect is accepted or safely
-deduplicated.
+Tool requests need stable call identifiers. Completion is retry-safe:
+resubmitting the same tool result after reconnect is accepted or safely ignored.
 
 If the caller never reconnects, pending tool calls fail with a typed reason, and
 the turn reaches a terminal state that can be inspected later.
