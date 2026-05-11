@@ -1,17 +1,21 @@
 # Workspaces
 
 The workspace is the filesystem the agent uses while it works. The harness
-reads and writes files there, long-running work leaves outputs there, and future
-turns resume from it after compute restarts.
+reads and writes files there, long-running work leaves outputs there, and
+future turns resume from it after compute restarts. The workspace is where
+the agent works. It is not necessarily where analytical truth lives. Truth
+may live in warehouses, object stores, feature stores, notebooks, dashboards,
+application databases, or external APIs.
 
-The workspace is where the agent works. It is not necessarily where analytical
-truth lives. The truth may live in warehouses, object stores, feature stores,
-notebooks, dashboards, application databases, or external APIs.
+Treat the workspace as infrastructure with a contract, not as a scratch
+directory. The same files may be needed by a retry, a reconnect, or a later
+review. Designs that lean on local paths tend to lose work the first time
+compute moves.
 
 ## Model
 
-A production workspace is remote, tenant-scoped, and mounted near the harness.
-It is not a temporary directory on the application host.
+A production workspace is remote, tenant-scoped, and mounted near the
+harness. It is not a temporary directory on the application host.
 
 The workspace survives:
 
@@ -31,9 +35,10 @@ can rehydrate the sandbox from remote storage before work resumes.
 
 ## Path Rules
 
-The public protocol uses sandbox-relative paths. The sandbox validates paths and
-prevents traversal outside the workspace. The application does not ask for host
-paths such as `/etc/passwd`, and does not expect sandbox paths to exist locally.
+The public protocol uses sandbox-relative paths. The sandbox validates paths
+and prevents traversal outside the workspace. The application does not ask
+for host paths such as `/etc/passwd`, and it does not expect sandbox paths to
+exist locally.
 
 Useful properties:
 
@@ -55,28 +60,27 @@ explicit:
 - sandbox stores them under the workspace prefix
 - staged files are recorded in the work contract or workspace manifest
 
-For large files, the protocol supports upload tickets or signed upload URLs so
-the data path does not require buffering through the control channel.
+For large files, the protocol supports upload tickets or signed upload URLs
+so the data path does not buffer through the control channel.
 
 ## Persistence and Cleanup
 
 Durable workspace data and scratch data are different.
 
 Durable data includes source checkouts, outputs, persistent notes, generated
-files, query result references, reports, and work-in-progress that future turns
-need.
-
-Scratch data includes temporary extraction directories, transient tool outputs,
-and partial files from failed operations. Scratch data is tied to a turn,
-transaction, or retention policy.
+files, query result references, reports, and work-in-progress that future
+turns need. Scratch data includes temporary extraction directories, transient
+tool outputs, and partial files from failed operations. Scratch data is tied
+to a turn, transaction, or retention policy.
 
 The sandbox owns cleanup of sandbox-local state. Runtime-facing integration
-requests cleanup through the protocol, not by unlinking sandbox paths directly.
+requests cleanup through the protocol, not by unlinking sandbox paths
+directly.
 
 ## Snapshots
 
-Snapshots are protocol operations. The sandbox returns opaque snapshot tokens;
-the application does not inspect storage internals.
+Snapshots are protocol operations. The sandbox returns opaque snapshot
+tokens; the application does not inspect storage internals.
 
 Snapshot operations define:
 
@@ -88,26 +92,30 @@ Snapshot operations define:
 - timeout cleanup
 - error behavior if rollback cannot complete
 
-Snapshot and restore are required for strong filesystem transaction guarantees.
-Without them, the definition library can still observe filesystem mutations but
-cannot honestly claim rollback.
+Snapshot and restore are required for strong filesystem transaction
+guarantees. Without them, the definition library can still observe
+filesystem mutations but cannot honestly claim rollback. That honesty is
+part of the discipline covered in [STATE.md](STATE.md).
 
 ## Workspace Identity
 
-Workspace identity combines tenant, sandbox, repository or project, and durable
-work identity. The exact tuple is platform-specific, but the required property
-is simple: two tenants must not collide, and two independent units of work do
-not accidentally share mutable files.
+Workspace identity combines tenant, sandbox, repository or project, and
+durable work identity. The exact tuple is platform-specific, but the
+required property is simple: two tenants must not collide, and two
+independent units of work do not accidentally share mutable files.
 
-Shared workspaces are allowed when explicitly declared. Sharing is part of the
-work contract, not an accident of path reuse.
+Shared workspaces are allowed when explicitly declared. Sharing is part of
+the work contract, not an accident of path reuse. See
+[DURABLE-WORK.md](DURABLE-WORK.md) for how work identity is supplied and
+hashed.
 
-For analytical work, workspace identity is not data lineage. A run record still
-needs to identify which data source, schema, metric version, query execution, or
-result handle supported the final output.
+For analytical work, workspace identity is not data lineage. A run record
+still needs to identify which data source, schema, metric version, query
+execution, or result handle supported the final output.
 
 ## Skills and Runtime Files
 
-Skill bundles, helper scripts, and runtime files are uploaded or mounted through
-the same workspace-aware protocol. The sandbox does not assume it can read them
-from the application's local disk.
+Skill bundles, helper scripts, and runtime files are uploaded or mounted
+through the same workspace-aware protocol. The sandbox does not assume it
+can read them from the application's local disk. Skill staging records are
+described in [SKILLS.md](SKILLS.md).

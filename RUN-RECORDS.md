@@ -1,10 +1,15 @@
 # Run Records
 
-Every run needs enough records to reconstruct what happened. A run that cannot
-be reconstructed was not observed in any useful sense.
+Every run needs enough records to reconstruct what happened. A run that
+cannot be reconstructed was not observed in any useful sense. That failure
+is most visible in analytical work, where a polished answer may be
+challenged weeks later: if the query IDs, intermediate files, freshness
+checks, and policy decisions are gone, there is no way to defend or correct
+the result.
 
-Run records are emitted by all layers. They should not become another place to
-put application intent or harness behavior.
+Run records are emitted by every layer in the system. They should not
+become another place to put application intent or harness behavior. They
+are evidence, not configuration.
 
 ## Records by Layer
 
@@ -46,6 +51,9 @@ put application intent or harness behavior.
 - reconnect and ownership events
 - budget and deadline records
 
+The state that feeds these records is defined in [STATE.md](STATE.md);
+records and state are separate surfaces but read from the same event log.
+
 ## Standard Events
 
 Harnesses emit different event streams. Harness adapters convert them into a
@@ -81,7 +89,14 @@ Transcripts are for inspection. Standard events are the source of truth.
 
 ## Debug Bundles
 
-A debug bundle contains enough to reproduce or explain a run:
+A debug bundle contains enough to reproduce or explain a run. For example,
+when a weekly cohort report is challenged three weeks later, a good debug
+bundle lets a reviewer answer the obvious questions without waking anyone
+up: which metric version was used, whether freshness passed, which query
+IDs produced which numbers, whether review approved delivery, and which
+skill version was staged.
+
+A bundle contains:
 
 - definition version and prompt hash
 - harness adapter configuration
@@ -102,8 +117,8 @@ A debug bundle contains enough to reproduce or explain a run:
 - generated outputs
 - terminal error chain
 
-Bundles avoid embedding secrets. References to remote files or records are fine
-when retention and access are clear.
+Bundles avoid embedding secrets. References to remote files or records are
+fine when retention and access are clear.
 
 ## Trace Links
 
@@ -117,19 +132,22 @@ Trace context crosses:
 - tool completion back to harness
 
 Backend provider IDs can be recorded as private correlation fields. Public
-correlation uses stable work identifiers.
+correlation uses stable work identifiers, as described in
+[DURABLE-WORK.md](DURABLE-WORK.md).
 
 ## Retention
 
-Not every record has the same retention requirement. Event summaries may live
-longer than raw provider data. Workspace snapshots may expire before
-transcripts. Debug bundles record which referenced files or records may expire.
+Not every record has the same retention requirement. Event summaries may
+live longer than raw provider data. Workspace snapshots may expire before
+transcripts. Debug bundles record which referenced files or records may
+expire.
 
-Retention is explicit so evaluation results remain interpretable after large raw
-records are cleaned up.
+Retention is explicit so evaluation results remain interpretable after
+large raw records are cleaned up. See [EVALUATION.md](EVALUATION.md) for
+how records feed evaluators.
 
 For analytical work, useful evidence is often sensitive. Records may need
 redaction, sampling, encryption, access control, short raw-data retention,
-references instead of embedded data, and deletion rules. A run should remain
-reviewable after sensitive raw data expires, even if it cannot be fully
-replayed.
+references instead of embedded data, and deletion rules. A run should
+remain reviewable after sensitive raw data expires, even if it cannot be
+fully replayed.

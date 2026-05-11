@@ -1,29 +1,28 @@
 # Integration Layer
 
-The integration layer has two directions.
+The integration layer has two directions. One faces the application: it turns
+product systems into inputs the agent definition can use. The other faces the
+runtime: it runs the definition through a real harness, sandbox, workspace,
+skill format, and event stream. The [agent definition](DEFINITION.md) sits
+between them.
 
-One direction faces the application. It turns product systems into inputs the
-agent definition can use.
-
-The other direction faces the runtime. It runs the definition through a real
-harness, sandbox, workspace, skill format, and event stream.
-
-The agent definition sits between these directions.
+Naming the directions separately matters. They have different owners,
+different failure modes, different tests, and different audit needs. A single
+"integration" blob collapses concerns that should be kept apart.
 
 ## Why It Exists
 
-A harness is not a neutral shell around a model. The useful behavior comes from
-the model as used through the harness's tools, edit loop, files, approvals,
-transcripts, skills, and recovery behavior.
-
-The integration layer lets an application use that behavior without hard-coding
-the application to one harness. It also keeps the harness from reaching directly
-into application systems.
+A harness is not a neutral shell around a model. The useful behavior comes
+from the model as used through the harness's tools, edit loop, files,
+approvals, transcripts, skills, and recovery. The integration layer lets an
+application benefit from that behavior without hard-coding the application to
+one harness, and it keeps the harness from reaching directly into application
+systems.
 
 ## Application-Facing Integration
 
-Application-facing integration answers: how does product intent enter the agent
-system?
+Application-facing integration answers: how does product intent enter the
+agent system?
 
 It binds:
 
@@ -40,8 +39,10 @@ It binds:
 - review, escalation, and delivery rules
 - retry and conflict behavior
 
-This direction should produce clear definition inputs. It should not depend on
-one harness's private prompt format or runtime behavior.
+This direction produces clear definition inputs. It should not depend on one
+harness's private prompt format or runtime behavior. When done well, an
+application team can change harnesses without rewriting the code that binds
+its tools and policies.
 
 ## Runtime-Facing Integration
 
@@ -61,26 +62,29 @@ It owns:
 - calling the sandbox protocol for workspace and lifecycle operations
 - preserving harness-specific errors and terminal results
 
-This direction is where harness adapters live. A harness adapter translates the
-shared definition into one harness's rules and formats. It does not hide
+This direction is where harness adapters live. A harness adapter translates
+the shared definition into one harness's rules and formats. It does not hide
 differences between harnesses; it makes them clear enough to test.
 
 For example, a Codex adapter and a Claude Agent SDK adapter may both run the
-same definition. They should not pretend their tools are identical. Each adapter
-may render skills, approvals, edits, shell commands, and event streams
-differently. The shared layer preserves application intent; the adapter
-preserves harness behavior.
+same definition. They should not pretend their tools are identical. Each
+adapter may render skills, approvals, edits, shell commands, and event
+streams differently. The shared layer preserves application intent; the
+adapter preserves harness behavior. See [SKILLS.md](SKILLS.md) for how
+skill packages travel alongside the definition across harnesses.
 
 ## Sandbox Protocol Boundary
 
-The integration layer calls the sandbox protocol. It does not own the sandbox.
+The integration layer calls the sandbox protocol. It does not own the
+sandbox. The sandbox protocol owns runtime lifecycle, workspace access,
+reconnect, isolation, external access policy, durable runtime records, and
+control-plane state. See [REMOTE-SANDBOXES.md](REMOTE-SANDBOXES.md) for that
+boundary in detail.
 
-The sandbox protocol owns runtime lifecycle, workspace access, reconnect,
-isolation, external access policy, durable runtime records, and control-plane
-state.
-
-This boundary matters. The integration layer maps application intent onto the
+This line matters. The integration layer maps application intent onto the
 runtime environment. The sandbox protocol manages the runtime environment.
+Crossing the line by reaching into sandbox internals from application code
+produces coupling that breaks the next time a sandbox is upgraded.
 
 ## Built-In Harness Tools
 
@@ -94,27 +98,26 @@ Every harness has built-in tools. A harness adapter classifies each one:
 - covered by sandbox snapshot hooks
 
 Do not give built-in tools stronger guarantees than the harness adapter and
-sandbox protocol can provide.
-
-The same rule applies to analytical capabilities. If a harness cannot support a
-required approval, streaming event, workspace snapshot, structured output mode,
-or data-access path, the adapter should report that limit instead of pretending
-the behavior exists.
+sandbox protocol can provide. The same rule applies to analytical
+capabilities: if a harness cannot support a required approval, streaming
+event, workspace snapshot, structured output mode, or data-access path, the
+adapter reports that limit rather than pretend the behavior exists.
 
 ## Protocol Before Client
 
-Design protocol behavior before designing the client object. The protocol needs
-explicit behavior for start, reconnect, duplicate starts, pending tool calls,
-duplicate tool completions, built-in harness events, terminal results,
-disconnects, sandbox restarts, workspace upload, skill staging, snapshot, and
-rollback.
+Design protocol behavior before designing the client object. The protocol
+needs explicit behavior for start, reconnect, duplicate starts, pending tool
+calls, duplicate tool completions, built-in harness events, terminal
+results, disconnects, sandbox restarts, workspace upload, skill staging,
+snapshot, and rollback.
 
-When these cases stay implicit, clients tend to encode local-only assumptions.
+When these cases stay implicit, clients tend to encode local-only
+assumptions. Those assumptions then break the first time the runtime moves
+to a real remote sandbox.
 
 ## Local Mode
 
-Local mode follows the same split. Application-facing integration still binds
-product systems into the definition. Runtime-facing integration still treats the
-harness and filesystem as if they could be remote.
-
-Local mode is the remote design in a simpler setting, not a second design.
+Local mode follows the same split. Application-facing integration still
+binds product systems into the definition. Runtime-facing integration still
+treats the harness and filesystem as if they could be remote. Local mode is
+the remote design in a simpler setting, not a second design.
