@@ -3,24 +3,42 @@
 Every run needs enough records to reconstruct what happened. A run that cannot
 be reconstructed was not observed in any useful sense.
 
-## Required Records
+Run records are cross-cutting. They are emitted by all layers, but they should
+not become another place to put application intent or harness behavior.
 
-A useful system records:
+## Records by Source
+
+**Definition records** show what the agent was asked to do:
 
 - rendered definition and prompt hash
 - declared tool schemas
-- policy decisions
-- feedback records
-- tool request and completion records
-- built-in harness events
-- workspace uploads and mutations
-- transaction snapshot, commit, and rollback records
-- completion check records
-- final output or terminal error
-- budget and deadline records
-- trace identifiers across process boundaries
+- policy and feedback configuration
+- structured output shape
+- completion checks
 
-These records use caller-owned work identifiers.
+**Application-facing records** show how the application participated:
+
+- caller-owned work identifiers
+- tool request and completion records
+- policy decisions
+- resource references
+- output delivery records
+
+**Runtime-facing records** show how the definition was run:
+
+- harness adapter name and version
+- skill versions and staged file manifests
+- built-in harness events
+- structured result or terminal error
+- raw event references for debugging
+
+**Sandbox and workspace records** show what happened remotely:
+
+- sandbox key and runtime status
+- workspace uploads and mutations
+- snapshot, commit, and rollback records
+- reconnect and ownership events
+- budget and deadline records
 
 ## Standard Events
 
@@ -77,11 +95,11 @@ when retention and access are clear.
 
 Trace context crosses:
 
-- orchestrator to sandbox control plane
+- application layer to runtime-facing integration
+- runtime-facing integration to sandbox control plane
 - control plane to harness runtime
 - harness to provider calls where possible
-- sandbox network proxy
-- definition tool request back to orchestrator
+- definition tool request back to application-facing integration
 - tool completion back to harness
 
 Backend provider IDs can be recorded as private correlation fields. Public

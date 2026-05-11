@@ -3,6 +3,9 @@
 A skill packages operating knowledge for a model-harness runtime. It teaches the
 harness how to use a repository, workflow, domain, or tool correctly.
 
+Skills are runtime-facing. They help the harness operate; they are not a place
+to hide application side effects or business logic.
+
 ## Why Skills Matter
 
 If the model and harness are trained and evaluated together, the shape of the
@@ -38,8 +41,8 @@ harness adapter can stage, mount, version, observe, and test the skill.
 
 Skills explain how to operate. Tools perform application side effects.
 
-A skill can tell the harness when and how to call a tool. The tool still needs a
-typed schema, policy, result shape, and idempotency behavior.
+A skill can tell the harness when and how to call a definition tool. The tool
+still needs a typed schema, policy, result shape, and idempotency behavior.
 
 A skill can include scripts or helper files. If those scripts mutate the
 workspace or call the network, the harness adapter and sandbox policy make that
@@ -67,7 +70,7 @@ This makes a run explainable after the local checkout has moved on.
 
 ## Evaluation
 
-Skills are tested with the rest of the integration layer. Tests cover:
+Skills are tested with runtime-facing integration. Tests cover:
 
 - discovery
 - staging

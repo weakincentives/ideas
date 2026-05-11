@@ -7,14 +7,14 @@ and future turns resume from it after compute restarts.
 ## Model
 
 A production workspace is remote, tenant-scoped, and mounted near the harness.
-It is not a temporary directory on the orchestrator host.
+It is not a temporary directory on the application host.
 
 The workspace survives:
 
 - harness process restart
 - sandbox compute restart
 - harness adapter disconnect
-- orchestrator deployment
+- application deployment
 - turn retry or reattach
 
 It does not survive explicit deletion, tenant teardown, retention expiry, or
@@ -23,7 +23,7 @@ workspace cleanup commands.
 ## Path Rules
 
 The public protocol uses sandbox-relative paths. The sandbox validates paths and
-prevents traversal outside the workspace. The orchestrator does not ask for host
+prevents traversal outside the workspace. The application does not ask for host
 paths such as `/etc/passwd`, and does not expect sandbox paths to exist locally.
 
 Useful properties:
@@ -60,13 +60,13 @@ Scratch data includes temporary extraction directories, transient tool outputs,
 and partial files from failed operations. Scratch data is tied to a turn,
 transaction, or retention policy.
 
-The sandbox owns cleanup of sandbox-local state. The orchestrator requests
-cleanup through the protocol, not by unlinking sandbox paths directly.
+The sandbox owns cleanup of sandbox-local state. Runtime-facing integration
+requests cleanup through the protocol, not by unlinking sandbox paths directly.
 
 ## Snapshots
 
 Snapshots are protocol operations. The sandbox returns opaque snapshot tokens;
-the orchestrator does not inspect storage internals.
+the application does not inspect storage internals.
 
 Snapshot operations define:
 
@@ -96,4 +96,4 @@ work contract, not an accident of path reuse.
 
 Skill bundles, helper scripts, and runtime files are uploaded or mounted through
 the same workspace-aware protocol. The sandbox does not assume it can read them
-from the orchestrator's local disk.
+from the application's local disk.

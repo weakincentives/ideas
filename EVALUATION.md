@@ -1,38 +1,15 @@
 # Evaluation and Contract Tests
 
-Prompt and tool design need measurement. Evaluation keeps iteration honest.
-
-## Agent Loop
-
-An agent loop runs one unit of work from definition to result. It:
-
-- accepts caller-owned work identifiers
-- renders the definition
-- binds resources
-- starts or reconnects durable work
-- streams events
-- fulfills definition tools
-- enforces budgets and deadlines
-- runs completion checks
-- returns typed output or typed terminal error
-
-This loop belongs to application orchestration. The harness still owns the model
-act loop.
+Evaluation is a support surface. It does not define application intent and it
+does not run the harness directly. It compares completed or repeatable agent
+work using definitions, datasets, run records, and contract tests.
 
 ## Eval Loop
 
-An eval loop runs many agent-loop instances against a dataset. It tracks:
-
-- dataset version
-- definition version
-- prompt override set
-- harness adapter and harness versions
-- model settings
-- skill versions
-- workspace seed
-- evaluator versions
-- random seeds or time injection settings
-- result metrics
+An eval loop runs agent work against a dataset. It tracks dataset version,
+definition version, prompt override set, harness adapter and harness versions,
+model settings, skill versions, workspace seed, evaluator versions, random seeds
+or time injection settings, and result metrics.
 
 Evaluations should be repeatable enough to compare changes while accepting that
 model behavior may still vary.
@@ -61,6 +38,19 @@ event history, workspace state, tool calls, or debug bundle data.
 LLM-as-judge evaluators record their own model, prompt, rubric, thresholds, and
 raw output. They can help, but they do not get special authority.
 
+## Contract Tests
+
+Contract tests prove that an integration layer implements the shared behavior.
+They cover both integration directions.
+
+Application-facing tests cover definition rendering, tool schema translation,
+tool call completion, policy denial, feedback delivery, structured output
+validation, and output handling.
+
+Runtime-facing tests cover skill packaging, built-in event translation,
+supported transaction behavior, workspace upload and read/write, duplicate
+starts, reconnect, disconnect grace expiry, and debug bundle generation.
+
 ## Prompt Overrides
 
 Prompt overrides let teams test changes without changing source definitions.
@@ -71,17 +61,10 @@ Silent fuzzy matching creates misleading evals.
 
 ## Reporting
 
-Eval reports include:
+Eval reports include aggregate metrics, per-case failures, before/after deltas,
+tool-call and built-in event summaries, budget summaries, representative
+transcripts, links or references to debug bundles, and contract test failures.
 
-- aggregate metrics
-- per-case failures
-- before/after deltas
-- tool-call and built-in event summaries
-- budget summaries
-- representative transcripts
-- links or references to debug bundles
-- contract test failures
-
-The report should make it clear whether worse behavior came from definition
-changes, harness adapter behavior, skill changes, harness behavior, model
-behavior, or sandbox infrastructure.
+The report should make it clear whether worse behavior came from the
+application-facing integration, definition changes, runtime-facing integration,
+skill changes, harness behavior, model behavior, or sandbox infrastructure.

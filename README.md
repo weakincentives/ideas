@@ -10,35 +10,135 @@ matters, but production agents usually run somewhere else: inside a sandbox,
 near a persistent workspace, behind a protocol, with a harness that already has
 its own tools and recovery behavior.
 
-## Thesis
+## Core Idea
 
 Effective agents are not just model calls, clever prompts, or generic loops.
-They work when the model, harness, tools, workspace, skills, tests, and run
-records fit together.
+They work when the application, definition, harness, sandbox, workspace, skills,
+tests, and run records fit together.
 
 The model and harness are one stack. The model is trained, evaluated, and
 shipped with a harness loop, built-in tools, editing behavior, approvals,
 transcripts, filesystem assumptions, provider integration, scheduling, retries,
-and recovery. If a library treats the harness as a thin wrapper around a model
-API, it loses much of the behavior that makes the agent useful.
+and recovery. Treating the harness as a thin wrapper around a model API loses
+much of the behavior that makes the agent useful.
 
-The long-term work for application teams is the layer around that stack:
-definitions, harness adapters, tool bridges, skills, workspace protocols, logs,
-traces, evals, and contract tests. That is where application intent meets the
-harness without pretending every harness behaves the same way.
+Application teams should not spend most of their time rebuilding that harness
+loop. The durable work is around the harness: connecting application intent to a
+clear agent definition, then connecting that definition to a real harness,
+sandbox, workspace, and event stream.
 
-The mental model is simple:
+## The Centerline
 
-- The **definition layer** says what the agent is supposed to do.
-- The **integration layer** connects that definition to a real harness,
-  sandbox, workspace, tools, skills, and event stream.
-- The **model-harness runtime** runs the model loop and built-in harness tools.
+The agent definition sits in the middle.
 
-Application teams own the definition and integration layers. Harness and
-sandbox platforms own the runtime. The line between them has to do practical
-work: preserve work identity, route tool calls without broad network access,
-expose a durable filesystem, stream useful events, and reconnect without
-starting duplicate work.
+On one side is the application layer: product flows, domain data, authorization,
+tool handlers, output consumers, user intent, and caller-owned work names.
+
+On the other side is the runtime environment: the harness, sandbox, workspace,
+built-in tools, provider traffic, event stream, reconnect behavior, and
+retention rules.
+
+The definition is the stable center. It says what the agent is supposed to do,
+what it may use, which rules apply, and what output is expected. It should not
+depend on private details of either side.
+
+## Layers of Responsibility
+
+These are layers of responsibility, not necessarily separate processes or
+packages.
+
+**1. Application layer**
+
+The application layer owns product behavior. It knows the user, tenant,
+authorization rules, domain data, business actions, and where the final output
+goes.
+
+It should expose that world through clear tools, policies, resources, and work
+names, not by letting the sandbox reach broadly into application systems.
+
+**2. Application-facing integration**
+
+This direction turns application systems into definition inputs. It binds tool
+handlers, policies, resources, output sinks, eval fixtures, and caller-owned
+work names to the agent definition.
+
+This is where product constraints enter the agent system.
+
+**3. Agent definition**
+
+The definition says what the agent is supposed to do. It owns prompt structure,
+declared tools, policies, feedback, completion checks, resource requirements,
+output shape, and the parts of state that are meaningful to the agent.
+
+The definition is not the application. It is also not the harness. It is the
+contract between them.
+
+**4. Runtime-facing integration**
+
+This direction connects the definition to a real harness and sandbox. Its main
+implementation piece is the harness adapter: code that translates a shared
+definition into one harness's prompt shape, tool shape, skill format, event
+stream, approval behavior, and result format.
+
+Runtime-facing integration also stages skills, routes definition tool requests
+back to application handlers, maps harness events into run records, and calls
+the sandbox protocol for workspace and lifecycle operations.
+
+**5. Sandboxed runtime and workspace**
+
+In production, the harness usually runs in a remote sandbox. The workspace is
+the durable filesystem mounted near that harness. It is not a temporary
+directory on the caller's machine.
+
+The sandbox protocol owns runtime lifecycle, workspace access, reconnect,
+isolation, and cleanup. The caller names work. A reconnect attaches to existing
+work. A disconnect does not cancel work by default.
+
+**6. Support surfaces**
+
+State, run records, evals, and contract tests support the layers above. They are
+not another place to put application intent or harness behavior.
+
+State records what the library needs to remember. Run records explain what
+happened. Evals compare behavior. Contract tests prove that an integration layer
+implements the shared expectations.
+
+## Do Not Mix These Up
+
+- A **definition** says what the agent should do.
+- A **tool** performs an application action.
+- A **skill** teaches the harness how to operate in a repository, workflow, or
+  domain.
+- A **harness adapter** translates between the definition and one harness.
+- A **sandbox protocol** manages remote runtime, workspace, reconnect, and
+  lifecycle.
+- A **run record** explains what happened after the run is over.
+
+Keeping these concepts separate is what lets the same ideas survive different
+languages, harnesses, sandboxes, and deployment models.
+
+## What This Repository Covers
+
+Start with [PRINCIPLES.md](PRINCIPLES.md) for the short rules.
+
+Use [DEFINITION.md](DEFINITION.md), [CAPABILITIES.md](CAPABILITIES.md), and
+[SKILLS.md](SKILLS.md) for the middle of the system: the definition, tools,
+policies, feedback, completion checks, skills, and resource requirements.
+
+Use [INTEGRATION-LAYER.md](INTEGRATION-LAYER.md) for the two integration
+directions: application-facing integration into the definition, and
+runtime-facing integration out to the harness and sandbox.
+
+Use [REMOTE-SANDBOXES.md](REMOTE-SANDBOXES.md), [WORKSPACES.md](WORKSPACES.md),
+and [DURABLE-WORK.md](DURABLE-WORK.md) for the runtime environment: sandboxed
+execution, persistent workspaces, caller-named work, reconnect, conflicts, and
+cleanup.
+
+Use [STATE.md](STATE.md), [RUN-RECORDS.md](RUN-RECORDS.md), and
+[EVALUATION.md](EVALUATION.md) for support surfaces: state, transaction limits,
+records, transcripts, debug bundles, evals, and contract tests.
+
+[GLOSSARY.md](GLOSSARY.md) defines the few terms that need stable names.
 
 ## Failure Modes
 
@@ -54,41 +154,15 @@ These principles are meant to prevent common mistakes:
 - An eval result cannot be explained because the rendered prompt, skills,
   harness version, workspace seed, or event stream was not recorded.
 
-## Design Map
-
-Read the files in this order:
-
-- [PRINCIPLES.md](PRINCIPLES.md) gives the short rules.
-- [DEFINITION.md](DEFINITION.md) describes what belongs in an agent definition.
-- [CAPABILITIES.md](CAPABILITIES.md) explains tools, policies, feedback,
-  completion checks, and external access.
-- [SKILLS.md](SKILLS.md) describes skills as versioned operating knowledge.
-- [REMOTE-SANDBOXES.md](REMOTE-SANDBOXES.md), [WORKSPACES.md](WORKSPACES.md),
-  and [DURABLE-WORK.md](DURABLE-WORK.md) explain the runtime shape: sandbox,
-  workspace, work identity, reconnect, conflicts, and cleanup.
-- [INTEGRATION-LAYER.md](INTEGRATION-LAYER.md) explains harness adapters and
-  the bridges around them.
-- [STATE.md](STATE.md) explains event-driven state, resources, transactions,
-  and idempotency.
-- [RUN-RECORDS.md](RUN-RECORDS.md) explains the records needed to understand a
-  run later.
-- [EVALUATION.md](EVALUATION.md) explains eval loops, datasets, prompt
-  overrides, and contract tests.
-- [GLOSSARY.md](GLOSSARY.md) gives stable names for the few concepts worth
-  naming.
-
 ## Scope
 
-This repository sits between application code and any one model-harness runtime.
-It asks what application teams should own, what belongs in an agent definition,
-what belongs in the integration layer, how remote work is named, how tool calls
-are routed, where rollback can honestly hold, and what evidence every run needs
-to leave behind.
+This repository asks what application teams should own, what belongs in an
+agent definition, what belongs in each integration direction, how remote work is
+named, how tool calls are routed, where rollback can honestly hold, and what
+evidence every run needs to leave behind.
 
 It does not define a full wire protocol, choose a programming language, prefer a
-model provider, or define a harness-independent planning loop. Local mode is
-important, but it should be the same design in a simpler setting, not a second
-design.
+model provider, or define a harness-independent planning loop.
 
 ## Working Rule
 

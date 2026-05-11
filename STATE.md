@@ -1,7 +1,10 @@
-# State, Transactions, and Idempotency
+# State and Transactions
 
 State is the durable memory of a run. Transactions say which changes survive
 failure. Both need clear limits.
+
+State is support machinery around the definition. It is not the place to encode
+application business logic or harness behavior.
 
 ## Session State
 
@@ -27,19 +30,9 @@ Events are append-only evidence. They record what happened even when state rolls
 back. A failed tool call may leave no committed state change, but the failure
 event itself remains.
 
-Useful event families include:
-
-- definition rendered
-- tools declared
-- policy evaluated
-- feedback emitted
-- tool requested
-- tool completed
-- built-in harness event observed
-- filesystem snapshot created
-- transaction committed or rolled back
-- completion checked
-- output produced
+Useful event families include definition render, tool declaration, policy
+decision, feedback, tool request, tool completion, built-in harness event,
+filesystem snapshot, transaction result, completion check, and output.
 
 ## Resources
 
@@ -47,14 +40,7 @@ Resources are injected dependencies with explicit lifetime. Examples include a
 filesystem client, database client, object store, clock, sleeper, credentials
 provider, or test fixture.
 
-Resources are scoped:
-
-- process singleton
-- session
-- turn
-- tool call
-- evaluation
-
+Resources are scoped to a process, session, turn, tool call, or evaluation.
 Snapshotable resources may participate in transaction rollback. Other resources
 need idempotency keys or compensating actions.
 
@@ -79,6 +65,8 @@ Not automatically covered:
 - filesystem writes that bypass the declared filesystem resource
 - side effects hidden in finalizers or background tasks
 
+For request-level idempotency, see [DURABLE-WORK.md](DURABLE-WORK.md).
+
 ## Tool Transactions
 
 For a definition tool, the normal flow is:
@@ -93,32 +81,3 @@ For a definition tool, the normal flow is:
 8. record events either way
 
 The agent sees a tool result, not transaction machinery.
-
-## Request Idempotency
-
-Transactionality inside a turn is not enough. The turn itself needs idempotency.
-A durable request is identified by:
-
-- caller-owned work identifier
-- caller-owned turn identifier
-- work contract hash
-
-The work contract includes inputs and declarations that change model behavior:
-prompt hash, tool schemas, model settings, structured output schema, workspace
-reference, and relevant policy configuration.
-
-Operational values such as wait timeout or client connection deadline belong in
-the work contract only when they alter sandbox behavior. Otherwise they are
-retry parameters, not a reason to create a conflict.
-
-## Built-In Tool Limits
-
-Many harnesses have built-in file, command, search, and patch tools. A
-definition library must not overclaim control over them. There are three honest
-levels:
-
-- observe built-in tool events and include them in transcripts
-- gate built-in tools through sandbox policy
-- wrap built-in tools in transaction hooks exposed by the sandbox protocol
-
-Only the third level supports full rollback guarantees.

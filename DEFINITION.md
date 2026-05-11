@@ -1,12 +1,19 @@
 # Agent Definitions
 
-An agent definition is a typed description of what the agent is supposed to do,
-what it can use, which rules apply, and what output is expected. It can run
-through more than one harness without pretending all harnesses are the same.
+An agent definition sits between the application layer and the runtime
+environment. It describes what the agent is supposed to do, what it may use,
+which rules apply, and what output is expected.
 
-## What the Definition Owns
+The definition is not the application. It does not own product storage, business
+logic, auth systems, or final output delivery.
 
-The definition owns:
+The definition is also not the harness. It does not own model calls, the act
+loop, built-in tools, sandbox lifecycle, provider credentials, or runtime event
+formats.
+
+## What the Definition Declares
+
+The definition declares:
 
 - prompt structure
 - sections and visibility rules
@@ -15,23 +22,15 @@ The definition owns:
 - feedback
 - completion checks
 - structured output
-- state reducers
 - resource requirements
-- eval fixtures and prompt overrides
+- state that is meaningful to the agent
 
-The harness owns:
+Application-facing integration binds those declarations to real application
+systems: tool handlers, authorization checks, data sources, output consumers,
+eval fixtures, and caller-owned work names.
 
-- model calls
-- planning and acting loop
-- built-in shell, file, search, and edit tools
-- sandboxing and lifecycle
-- provider credentials
-- retry behavior
-- approval modes
-- built-in event formats
-
-The integration layer maps between the two. It preserves application intent
-while respecting how the model-harness runtime works.
+Runtime-facing integration renders those declarations into a real harness and
+sandbox through a harness adapter.
 
 ## Prompt as Structure
 
@@ -88,15 +87,15 @@ Prompt iteration does not silently mutate source definitions. An override
 targets a stable content hash or structural path, records authorship and
 experiment metadata, and fails loudly if the base content changed.
 
-Overrides are for evaluation and experiments. They must not become an
+Overrides are support machinery around the definition. They must not become an
 unreviewed production configuration channel.
 
 ## Cross-Harness Test
 
 A definition is ready when it can be rendered, inspected, evaluated, and run
 against more than one harness adapter without changing definition code. Harness
-differences belong in harness adapters, skill packages, and protocol shims, not
-in prompt branches.
+differences belong in harness adapters, skill packages, and sandbox protocols,
+not in prompt branches.
 
 Cross-harness support does not mean identical behavior. It means the same
 application intent can be driven through each model-harness runtime, with the

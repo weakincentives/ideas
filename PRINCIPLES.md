@@ -1,8 +1,8 @@
 # Principles
 
-These are the rules behind the rest of the repository. Prefer designs that make
-remote work safe, keep the model-harness stack intact, and leave enough records
-to understand what happened.
+These are the rules behind the rest of the repository. Prefer designs that keep
+the model-harness stack intact, keep the definition in the middle, make remote
+work safe, and leave enough records to understand what happened.
 
 ## 1. Treat Model and Harness as One Stack
 
@@ -16,49 +16,53 @@ The harness already owns the planning loop, built-in tools, provider
 integration, scheduling, sandboxing, and runtime recovery. A definition library
 drives that stack, connects it to application systems, and records what it does.
 
-## 3. Own Definitions and Integration
+## 3. Keep the Definition in the Middle
 
-Application teams own the agent definition: prompt structure, declared tools,
-policies, feedback, completion checks, state reducers, resources, outputs, and
-eval fixtures.
+The definition is the contract between application intent and runtime behavior.
+It is not the application, and it is not the harness.
 
-They also own the integration layer: harness adapters, tool bridges, skills,
-workspace integration, evals, contract tests, and run records. That is where the
-durable work lives.
+Application-facing integration binds product data, tools, policies, resources,
+outputs, eval fixtures, and caller-owned work names into the definition.
+
+Runtime-facing integration renders that definition into one harness, stages
+skills, connects workspaces, routes tool calls, streams events, and handles
+runtime differences through harness adapters and sandbox protocols.
 
 ## 4. Keep Instructions Near Capabilities
 
-The prompt is not just text. It is structured input that tells the agent what it
-can see, what it can do, which rules apply, and what output is expected.
+The prompt is structured input, not just text. It tells the agent what it can
+see, what it can do, which rules apply, and what output is expected.
 
 A tool appears near the instructions that teach the agent how to use it. A
 policy appears near the behavior it constrains. An output format appears near
-the output it validates. Keeping these together makes drift harder.
+the output it validates.
 
-## 5. Put Operating Knowledge in Skills
+## 5. Use Tools for Side Effects and Skills for Operating Knowledge
 
-Skills package the operating knowledge a harness needs to use a repository,
-tool, workflow, or domain correctly. They are not decorative prompt fragments.
-They are versioned integration assets that travel with the harness adapter and
-are tested against the harness.
+Application side effects go through declared tools, not broad network access
+from inside the sandbox. Every application action has a name, typed input,
+typed output, policy check, idempotency story, and trace.
 
-## 6. Put Side Effects Behind Tools
+Skills package operating knowledge: how to use a repository, workflow, domain,
+or tool correctly. Skills do not replace tools, and tools do not replace skills.
 
-Application access to outside systems goes through declared tools, not broad
-network access from inside the sandbox. Every application action has a name,
-typed input, typed output, policy check, idempotency story, and trace.
+## 6. Design for Remote Sandboxes First
 
-## 7. Use Policies for Rules
+Assume the harness and filesystem run in a separate sandbox reached through a
+protocol. Shared memory, in-process callbacks, and local paths are development
+conveniences, not design premises.
 
-Policies encode rules and fail closed. If a policy cannot evaluate a request, it
-denies or stops the action and records why. Feedback can guide behavior, but it
-does not authorize side effects.
+## 7. Let the Caller Name Work
 
-## 8. Keep State Explainable
+The caller supplies stable names for durable work. Backend session IDs, provider
+request handles, and runtime trace tokens can exist, but public protocol
+messages use caller-owned names.
 
-State changes come from typed events. Durable state is serializable,
-inspectable, and replayable. A reader should not need to know runtime internals
-to understand what happened.
+## 8. Keep Work, Compute, and Connections Separate
+
+A connection is not work. Disconnecting does not cancel work by default.
+Reconnecting does not start new work. A sandbox process can restart without
+deleting the workspace or the caller's work record.
 
 ## 9. Be Honest About Rollback
 
@@ -66,39 +70,11 @@ Transactions only cover state the definition library controls. They do not roll
 back an external API call that already happened, an unwrapped built-in harness
 command, or a filesystem mutation outside a sandbox snapshot.
 
-## 10. Design for Remote Sandboxes First
-
-Assume the harness and filesystem run in a separate sandbox reached through a
-protocol. Shared memory, in-process callbacks, and local paths are development
-conveniences, not design premises.
-
-## 11. Let the Caller Name Work
-
-The caller supplies stable names for durable work. Backend session IDs, provider
-request handles, and runtime trace tokens can exist, but public protocol
-messages use caller-owned names.
-
-## 12. Keep Work, Compute, and Connections Separate
-
-A connection is not work. Disconnecting does not cancel work by default.
-Reconnecting does not start new work. A sandbox process can restart without
-deleting the workspace or the caller's work record.
-
-## 13. Treat the Workspace as Durable Data
-
-The agent workspace is not a temporary directory on the caller's machine. In
-production it is a remote, tenant-scoped, persistent filesystem mounted near the
-harness.
-
-## 14. Keep Evidence for Every Run
+## 10. Leave Records and Prove Behavior
 
 Every run leaves enough evidence to reconstruct what happened: rendered
 definition, tool schemas, tool calls, built-in harness events, filesystem
 snapshots or references, outputs, budgets, errors, and trace correlation.
 
-## 15. Prove the Shared Contract
-
 An integration layer passes shared contract tests before claiming cross-harness
-support. The tests cover rendering, tool bridging, harness adapters, skills,
-policies, state, transactions, durable work, reconnect, run records, and
-structured output.
+support.

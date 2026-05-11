@@ -3,14 +3,22 @@
 Production agent systems usually run the harness in a remote sandbox, not inside
 the application process.
 
+This file starts on the runtime side of the agent definition. It describes the
+sandbox, runtime, workspace, and protocol that runtime-facing integration talks
+to.
+
 ## Shape
 
-The usual shape has four pieces.
+The usual shape has five pieces.
 
 ```
-Application / Orchestrator
+Application Layer
     |
-    | definition, integration layer, skills, durable work IDs, tool handlers
+    | tools, policies, resources, work names
+    v
+Agent Definition
+    |
+    | rendered by runtime-facing integration
     v
 Sandbox Control Plane
     |
@@ -26,15 +34,14 @@ Remote Workspace
 Local development may collapse pieces, but the rules still behave as if the
 harness and workspace are remote.
 
-## Orchestrator
+## Application Boundary
 
-The orchestrator owns the definition and caller-visible work identity. It
-renders prompts, declares tools, fulfills definition tool calls, evaluates
-definition policies, records application-level events, and decides when to
-start, retry, reattach, or abandon work.
+The application layer owns the definition inputs and caller-visible work names.
+It also owns the handlers for definition tools.
 
-The orchestrator does not need direct access to sandbox-local paths or
-processes.
+The sandbox does not need direct access to application-local paths, processes,
+or private services. It reaches application behavior through declared tool
+requests.
 
 ## Sandbox Control Plane
 
@@ -63,7 +70,7 @@ identical to other harnesses. Harness adapters absorb the differences and make
 them explicit.
 
 The definition library does not assume the harness can call in-process
-functions or read local files from the orchestrator.
+functions or read local files from the application layer.
 
 ## Protocol Shape
 
