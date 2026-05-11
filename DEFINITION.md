@@ -27,7 +27,11 @@ The definition declares:
 
 Application-facing integration binds those declarations to real application
 systems: tool handlers, authorization checks, data sources, output consumers,
-eval fixtures, and caller-owned work names.
+and eval fixtures.
+
+For analytical agents, the definition also declares the data and query
+capabilities the agent may use, the checks that decide whether an answer is
+complete, and the output shape expected from the analysis.
 
 Runtime-facing integration renders those declarations into a real harness and
 sandbox through a harness adapter.

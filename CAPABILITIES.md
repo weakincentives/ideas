@@ -1,7 +1,7 @@
 # Capabilities
 
-Capabilities are the declared ways an agent can act. Application side effects
-are named tools, not hidden access.
+Capabilities are the declared ways an agent can act. Application and data-system
+actions are named tools, not hidden access.
 
 Capabilities sit in the definition. Application-facing integration binds them
 to real application handlers. Runtime-facing integration exposes them to the
@@ -25,7 +25,27 @@ wrap definition tools. It can only observe built-in harness tools unless the
 sandbox protocol exposes control points for policy, snapshot, and rollback.
 
 Skills are separate from tools. Skills explain how to operate; tools perform
-application side effects. See [SKILLS.md](SKILLS.md).
+application or data-system actions. See [SKILLS.md](SKILLS.md).
+
+## Query and Data Tools
+
+For unattended analytical agents, query execution is a tool surface, not an
+untracked sandbox privilege.
+
+A query or data tool should declare:
+
+- query text, query template, or named operation
+- typed parameters
+- data source, schema, table, or metric references
+- authorization and row-level policy checks
+- freshness expectations
+- row limits, timeouts, and cost limits
+- result shape, result handle, or output location
+- sampled result rules when full results are too large
+- execution ID and trace context
+
+The agent can use skills to learn how to query a data source correctly. The data
+access itself still goes through a declared, policy-checked, recorded tool.
 
 ## Tool Shape
 
@@ -66,20 +86,22 @@ still allowed.
 
 Completion checks verify that "done" really means done. They run after the
 harness produces a candidate final response and may inspect the session,
-workspace metadata, tool history, or structured output.
+workspace metadata, tool history, query history, data freshness, or structured
+output.
 
 ## External Access
 
-Remote sandboxes restrict application network access. Model-provider traffic may
-be allowed for the harness. Application traffic flows through definition tools
-fulfilled by application-facing integration or through explicitly declared
-sandbox network profiles.
+Remote sandboxes restrict application and data-system network access.
+Model-provider traffic may be allowed for the harness. Application and data
+traffic flows through definition tools fulfilled by application-facing
+integration or through explicitly declared sandbox network profiles.
 
 This gives reviewers a clear record:
 
-- every application action has a tool name
+- every application or data-system action has a tool name
 - every tool call has typed input and output
-- every call carries caller-owned work identifiers
+- every query has a data source, execution record, and result reference
+- every call can be tied back to stable work identity
 - every denial or failure is visible
 
 ## Anti-Patterns
@@ -89,5 +111,6 @@ This gives reviewers a clear record:
 - skills that depend on undeclared files or local paths
 - tools whose names or schemas depend on one harness
 - policy decisions that are not recorded
+- query execution hidden behind broad network access
 - broad sandbox network access as a substitute for tool design
 - treating built-in harness tools as transactional without protocol support

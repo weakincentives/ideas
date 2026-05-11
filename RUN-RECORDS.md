@@ -18,8 +18,11 @@ not become another place to put application intent or harness behavior.
 
 **Application-facing records** show how the application participated:
 
-- caller-owned work identifiers
+- stable work identifiers
 - tool request and completion records
+- query execution records
+- data source, schema, metric, or dataset references
+- data freshness and permission decisions
 - policy decisions
 - resource references
 - output delivery records
@@ -29,6 +32,7 @@ not become another place to put application intent or harness behavior.
 - harness adapter name and version
 - skill versions and staged file manifests
 - built-in harness events
+- generated file and report references
 - structured result or terminal error
 - raw event references for debugging
 
@@ -65,6 +69,7 @@ The transcript is the human-readable reconstruction of a run. It merges:
 - rendered prompt
 - model messages
 - definition tool calls
+- query summaries or result references
 - built-in tool events
 - feedback
 - completion checks
@@ -84,8 +89,13 @@ A debug bundle contains enough to reproduce or explain a run:
 - transcript
 - relevant session state snapshots
 - workspace manifest or snapshot reference
+- query text or redacted query reference
+- query execution IDs and result references
+- data source, schema, metric, or dataset versions
 - policy and completion results
+- validation checks
 - tool schemas and tool results
+- generated outputs
 - terminal error chain
 
 Bundles avoid embedding secrets. References to remote files or records are fine
@@ -103,7 +113,7 @@ Trace context crosses:
 - tool completion back to harness
 
 Backend provider IDs can be recorded as private correlation fields. Public
-correlation uses caller-owned identifiers.
+correlation uses stable work identifiers.
 
 ## Retention
 

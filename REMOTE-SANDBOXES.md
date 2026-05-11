@@ -14,7 +14,7 @@ The usual shape has seven pieces.
 ```
 Application Layer
     |
-    | tools, policies, resources, work names
+    | tools, policies, resources
     v
 Application-Facing Integration
     |
@@ -42,14 +42,25 @@ Remote Workspace
 Local development may collapse pieces, but the rules still behave as if the
 harness and workspace are remote.
 
+Cloudflare Sandboxes are one concrete example of the runtime side. They provide
+an isolated filesystem, dedicated containerized compute, lifecycle operations,
+command execution, file operations, and network policy. Those pieces are useful,
+but they do not remove the need for an agent-level protocol around work
+identity, reconnect, tool routing, workspace persistence, network access, and
+run records.
+
 ## Application Boundary
 
-The application layer owns the definition inputs and caller-visible work names.
-It also owns the handlers for definition tools.
+The application layer owns the definition inputs and handlers for definition
+tools.
 
 The sandbox does not need direct access to application-local paths, processes,
 or private services. It reaches application behavior through declared tool
 requests.
+
+The same rule applies to analytical systems. Warehouse queries, object-store
+reads, dashboard updates, and report publication should enter through declared
+tools or explicit network profiles, with records that explain what happened.
 
 ## Sandbox Control Plane
 
@@ -100,7 +111,7 @@ A sandbox protocol needs operations for:
 - stage or mount skills provided by harness adapters
 - close, detach, and reattach connections
 
-The protocol uses caller-owned identifiers in public messages. Backend runtime
+The protocol uses stable public identifiers for retryable work. Backend runtime
 identifiers can exist, but they stay private to harness adapters and the control
 plane.
 
@@ -119,7 +130,7 @@ This makes the protocol tool-oriented rather than network-oriented.
 
 Local mode supports tests and development. It follows the same rules:
 
-- caller-owned work IDs
+- stable idempotency keys
 - work contract conflicts
 - filesystem abstraction
 - streamed events

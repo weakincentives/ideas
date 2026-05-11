@@ -2,8 +2,8 @@
 
 The integration layer has two directions.
 
-One direction faces the application. It binds product data, tools, policies,
-resources, outputs, eval fixtures, and caller-owned work names into the agent
+One direction faces the application. It binds product data, query engines,
+tools, policies, resources, outputs, and eval fixtures into the agent
 definition.
 
 The other direction faces the runtime environment. It translates the definition
@@ -28,13 +28,15 @@ system?
 
 It binds:
 
-- caller-owned work names
 - tool handlers
+- query engines and data systems
 - authorization and policy checks
 - resources and data sources
 - output consumers
 - eval fixtures and test cases
 - product-level budgets and deadlines
+- analytical cost and freshness limits
+- retry and conflict behavior
 
 This direction should produce clear definition inputs. It should not depend on
 one harness's private prompt format or runtime behavior.
@@ -50,14 +52,21 @@ It owns:
 - packaging skills in the harness's format
 - staging runtime files
 - translating tool calls back to application handlers
+- routing query tool calls back to data-system handlers
 - translating harness events into standard events
-- mapping caller-owned work names to sandbox work
+- mapping idempotency keys to sandbox work
 - calling the sandbox protocol for workspace and lifecycle operations
 - preserving harness-specific errors and terminal results
 
 This direction is where harness adapters live. A harness adapter translates the
 shared definition into one harness's rules and formats. It does not hide
 differences between harnesses; it makes them clear enough to test.
+
+For example, a Codex adapter and a Claude Agent SDK adapter may both run the
+same agent definition. They should not pretend their tools are identical. Each
+adapter may render skills, approvals, edits, shell commands, and event streams
+differently. The shared layer preserves application intent; the adapter
+preserves harness behavior.
 
 ## Sandbox Protocol Boundary
 

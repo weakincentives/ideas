@@ -4,6 +4,10 @@ The workspace is the remote filesystem the agent uses while it works. The
 harness reads and writes files there, long-running work leaves outputs there,
 and future turns resume from it after compute restarts.
 
+The workspace is where the agent works. It is not necessarily where the source
+of truth lives. Analytical systems may live in warehouses, object stores,
+feature stores, notebooks, dashboards, application databases, or external APIs.
+
 ## Model
 
 A production workspace is remote, tenant-scoped, and mounted near the harness.
@@ -19,6 +23,11 @@ The workspace survives:
 
 It does not survive explicit deletion, tenant teardown, retention expiry, or
 workspace cleanup commands.
+
+Some sandbox filesystems last only as long as active compute. That is still
+useful, but it is not the same as a persistent workspace. A production design
+needs either a durable workspace mounted near the harness, or a protocol that
+can rehydrate the sandbox from remote storage before work resumes.
 
 ## Path Rules
 
@@ -54,7 +63,8 @@ the data path does not require buffering through the control channel.
 Durable workspace data and scratch data are different.
 
 Durable data includes source checkout, outputs, persistent notes, generated
-files, and work-in-progress that future turns need.
+files, query result references, reports, and work-in-progress that future turns
+need.
 
 Scratch data includes temporary extraction directories, transient tool outputs,
 and partial files from failed operations. Scratch data is tied to a turn,
@@ -84,13 +94,17 @@ cannot honestly claim rollback.
 
 ## Workspace Identity
 
-Workspace identity combines tenant, sandbox, repository or project, and
-caller-owned work names. The exact tuple is platform-specific, but the required
-property is simple: two tenants must not collide, and two independent units of
-work do not accidentally share mutable files.
+Workspace identity combines tenant, sandbox, repository or project, and durable
+work identity. The exact tuple is platform-specific, but the required property is
+simple: two tenants must not collide, and two independent units of work do not
+accidentally share mutable files.
 
 Shared workspaces are allowed when explicitly declared. Sharing is part of the
 work contract, not an accident of path reuse.
+
+For analytical work, workspace identity is not a substitute for data lineage. A
+run record still needs to identify which data source, schema, metric version,
+query execution, or result handle supported the final output.
 
 ## Skills and Runtime Files
 

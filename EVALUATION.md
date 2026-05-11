@@ -1,8 +1,8 @@
 # Evaluation and Contract Tests
 
 Evaluation is a support surface. It does not define application intent and it
-does not run the harness directly. It compares completed or repeatable agent
-work using definitions, datasets, run records, and contract tests.
+does not run the harness directly. It compares completed or repeatable
+analytical work using definitions, datasets, run records, and contract tests.
 
 ## Eval Loop
 
@@ -22,6 +22,7 @@ defines:
 - input
 - expected output or rubric
 - workspace seed files
+- data source fixtures or references
 - allowed tools
 - completion criteria
 - evaluator configuration
@@ -33,7 +34,12 @@ production. Local fixture directories are only source material.
 ## Evaluators
 
 Evaluators are typed functions over run records. They may inspect final output,
-event history, workspace state, tool calls, or debug bundle data.
+event history, workspace state, tool calls, query results, generated outputs, or
+debug bundle data.
+
+Analytical evaluators may check known-answer cases, synthetic datasets, query
+result validation, statistical sanity checks, reproducibility, lineage, and
+cost or performance budgets.
 
 LLM-as-judge evaluators record their own model, prompt, rubric, thresholds, and
 raw output. They can help, but they do not get special authority.
@@ -44,8 +50,9 @@ Contract tests verify that an integration layer implements the shared behavior.
 They cover both integration directions.
 
 Application-facing tests cover binding application tools, policies, resources,
-work names, eval fixtures, output consumers, tool call completion, policy
-denial, feedback delivery, structured output validation, and output handling.
+query engines, retry behavior, eval fixtures, output consumers, tool call
+completion, policy denial, feedback delivery, structured output validation, and
+output handling.
 
 Runtime-facing tests cover definition rendering for a harness, tool schema
 rendering, skill packaging, built-in event translation, supported transaction
@@ -64,7 +71,8 @@ Silent fuzzy matching creates misleading evals.
 
 Eval reports include aggregate metrics, per-case failures, before/after deltas,
 tool-call and built-in event summaries, budget summaries, representative
-transcripts, links or references to debug bundles, and contract test failures.
+transcripts, query summaries, data lineage, validation checks, links or
+references to debug bundles, and contract test failures.
 
 The report should make it clear whether worse behavior came from the
 application-facing integration, definition changes, runtime-facing integration,

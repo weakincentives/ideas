@@ -1,6 +1,6 @@
 # Durable Work
 
-Durable work is named work that survives retry, reconnect, and sandbox restart.
+Durable work survives retry, reconnect, and sandbox restart.
 
 ## Three Lifecycles
 
@@ -9,8 +9,8 @@ Keep these lifecycles separate.
 **Compute lifecycle.** A sandbox or harness process starts, sleeps, restarts, or
 stops.
 
-**Work lifecycle.** A caller-named session, thread, turn, or evaluation exists,
-accumulates state, reaches a terminal result, or is deleted.
+**Work lifecycle.** A session, thread, turn, or evaluation exists, accumulates
+state, reaches a terminal result, or is deleted.
 
 **Connection lifecycle.** A client connects, streams messages, disconnects, and
 possibly reconnects.
@@ -20,7 +20,7 @@ new work.
 
 ## Public Identity
 
-The caller names durable work. Typical identifiers:
+Durable work uses stable public identifiers. Typical identifiers:
 
 - tenant or namespace
 - sandbox key

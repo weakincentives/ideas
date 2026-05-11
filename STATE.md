@@ -8,7 +8,7 @@ application business logic or harness behavior.
 
 ## Session State
 
-A session is caller-named state associated with one or more units of work. It
+A session is durable state associated with one or more units of work. It
 contains typed slices updated by events.
 
 A state slice defines:
@@ -32,7 +32,8 @@ event itself remains.
 
 Useful event families include definition render, tool declaration, policy
 decision, feedback, tool request, tool completion, built-in harness event,
-filesystem snapshot, transaction result, completion check, and output.
+filesystem snapshot, query execution, data freshness check, transaction result,
+completion check, and output.
 
 ## Resources
 

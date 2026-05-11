@@ -1,7 +1,8 @@
 # Skills and Runtime Assets
 
 A skill packages operating knowledge for a model-harness runtime. It teaches the
-harness how to use a repository, workflow, domain, or tool correctly.
+harness how to use a repository, workflow, data source, domain, or tool
+correctly.
 
 Skills are runtime-facing. They help the harness operate; they are not a place
 to hide application side effects or business logic.
@@ -16,7 +17,9 @@ Good harness adapters feed those rules. They do not flatten every skill into a
 generic prompt block.
 
 Skills are one of the main places application teams spend effort. They turn
-local operating knowledge into reusable, testable harness input.
+local operating knowledge into reusable, testable harness input: repository
+conventions, metric definitions, safe query patterns, reporting expectations,
+and validation habits.
 
 ## Skill Contents
 
@@ -28,6 +31,11 @@ A skill may contain:
 - schemas
 - tool usage notes
 - repository conventions
+- data source conventions
+- metric definitions
+- safe query patterns
+- validation workflows
+- reporting conventions
 - troubleshooting notes
 - test fixtures
 - manifest metadata
@@ -39,10 +47,15 @@ harness adapter can stage, mount, version, observe, and test the skill.
 
 ## Skills and Tools
 
-Skills explain how to operate. Tools perform application side effects.
+Skills explain how to operate. Tools perform application and data-system
+actions.
 
 A skill can tell the harness when and how to call a definition tool. The tool
 still needs a typed schema, policy, result shape, and idempotency behavior.
+
+A skill can explain how to inspect data, avoid expensive queries, validate
+joins, compare cohorts, or interpret a metric. The query still runs through a
+declared query tool with permissions, budgets, and records.
 
 A skill can include scripts or helper files. If those scripts mutate the
 workspace or call the network, the harness adapter and sandbox policy make that
@@ -88,5 +101,6 @@ Treat skill failures as integration failures, not prompt polish.
 - relying on the harness to read local files directly
 - shipping scripts whose side effects bypass sandbox policy
 - using skills to hide undeclared tools
+- using skills to hide data access
 - keeping skills outside version control
 - evaluating definitions without the skills used in production
