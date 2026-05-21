@@ -1,15 +1,5 @@
 # The Agent-Definition Layer
 
-A six-pager on a portable agent-definition layer: what the pattern is, why it
-matters, and what any implementation of this shape must preserve.
-
-This document is not a product specification for one framework. It describes the
-implementation contract for any framework that separates durable agent
-definitions from execution harnesses. Specific project names can change. The
-boundary is the important part.
-
-______________________________________________________________________
-
 ## 1. Thesis
 
 Every production agent has two halves: the **definition** and the **harness**.
