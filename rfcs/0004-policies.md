@@ -157,14 +157,3 @@ An adapter certification suite MUST assert:
 - The same definition produces the same allow/deny decisions for the same
   action sequence on every harness.
 - Policy decisions (including reasons) appear in the run record.
-
-## Open questions
-
-- Is a declarative policy *language* (data, not code) worth standardizing for
-  the canonical shapes, so policies are portable across implementations and
-  reviewable without executing anything? The case is stronger now that
-  policies span native harness actions: a data format would make the full
-  gated surface reviewable without executing adapter code.
-- Rollback notification: should policies observe restores explicitly rather
-  than relying on ledger rewind, for implementations whose policy state is
-  expensive to recompute?

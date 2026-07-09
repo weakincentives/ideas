@@ -65,6 +65,10 @@ order, though 0012 (compatibility) references almost everything else.
   section listing the observable behaviors an adapter certification suite
   (RFC-0012) must assert. If a requirement cannot be phrased as an observable
   behavior, it is a design smell in the RFC.
+- **Altitude.** RFCs specify observable contracts: behavior, invariants, and
+  failure semantics. Implementation choices that do not change behavior
+  observable through the compatibility surface are left unstated on purpose —
+  silence is freedom, not a gap.
 - **Status.** All RFCs are currently **Draft**. An RFC becomes **Stable**
   when at least one implementation conforms and the compatibility surface is
   covered by a runnable suite.

@@ -152,15 +152,3 @@ this RFC binds the library):
 - Behavioral evaluators read the same ledger shapes across harnesses (follows
   from RFC-0006 parity, asserted end-to-end here).
 - Experiment identity flows from request to result to run record unchanged.
-
-## Open questions
-
-- Statistical rigor: should the comparison contract include confidence
-  intervals and minimum-N warnings natively, or is that reporting-layer
-  concern? Small eval sets breed overconfident promotions.
-- Caching: repeated identical (sample, definition-version) executions are
-  wasteful, but caching model behavior undermines "measure what ships" —
-  where is the line?
-- What is the minimal standard schema for structured findings (conclusion,
-  evidence references, proposal payloads) that downstream automation can rely
-  on across implementations?

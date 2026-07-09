@@ -159,13 +159,3 @@ An adapter certification suite MUST be able to assert:
   the expansion mechanism works, and the capability is present afterward.
 - Declared structured output is parsed and validated identically, with parse
   failures carrying the raw output.
-
-## Open questions
-
-- Should sections support *mutually exclusive* groups (exactly one of N
-  enabled) as a first-class construct, or is the enablement predicate enough?
-- How much summary content is optimal before disclosure stops paying for
-  itself? This is an evaluation question (RFC-0014) more than a design one.
-- Should the rendered heading scheme be standardized across implementations to
-  make cross-library run records comparable, or is per-implementation
-  determinism sufficient?

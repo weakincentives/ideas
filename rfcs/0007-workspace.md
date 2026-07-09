@@ -80,9 +80,9 @@ Implementations SHOULD keep the seam visible even while both are local.
 
 All ergonomics — text/byte reads with pagination, streaming, write modes,
 size caps, path normalization and validation, read-only enforcement — live
-**once**, in a single facade. Beneath it sits a backend protocol of roughly
-ten primitives: stat, list, glob, grep, ranged read, write, delete, mkdir,
-snapshot, restore.
+**once**, in a single facade. Beneath it sits a deliberately small backend
+protocol: metadata, listing, search, ranged reads, writes, deletion,
+snapshot, restore — and nothing else.
 
 Consequences that are normative:
 
@@ -163,15 +163,3 @@ An adapter certification suite MUST assert:
 - Egress default-deny holds: undeclared destinations are unreachable from the
   workspace.
 - Secret material appears nowhere the agent or the run record can read.
-
-## Open questions
-
-- Remote enforcement: when the environment is harness-provided, egress
-  enforcement may be the harness's (weaker or different) mechanism — should
-  the adapter be required to *attest* the effective policy in the run record
-  so gaps are visible?
-- Should workspace snapshots support partial scopes (per-directory) for very
-  large workspaces, or does that compromise the all-or-nothing transaction
-  story more than it saves?
-- Is there a portable contract for **workspace handoff** — one agent's output
-  workspace becoming another's input — beyond "export artifacts, re-mount"?

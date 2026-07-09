@@ -70,8 +70,11 @@ Normative semantics:
    Harness-derived entries (conversation mirroring) are best-effort — their
    failures never fail the run; they degrade the record and are themselves
    recorded as warnings.
-2. **Ordering.** Within one source, sequence numbers are strictly monotonic;
-   causal pairs (tool use before its tool result) MUST be ordered.
+2. **Ordering.** Within one source, sequence numbers are strictly monotonic.
+   Entries describing one effect MUST appear in causal order regardless of
+   source — decision before execution before result; interleaving across
+   unrelated sources carries no guarantee, and consumers MUST NOT depend on
+   it.
 3. **Fidelity split.** The envelope is the portable contract; harness detail
    lives in `detail`/`raw`, preserved but out of scope for cross-harness
    comparison. This split is what lets the schema be both stable and honest.
@@ -167,15 +170,3 @@ An adapter certification suite MUST assert:
 - Unmappable native events surface as `unknown` with raw preserved.
 - Run records verify against their manifests, and the transcript extracted
   from a record equals the transcript emitted during the run.
-
-## Open questions
-
-- How far should cross-harness *content* normalization go — e.g., token-usage
-  entries have wildly different native granularity; is per-run aggregate
-  parity enough?
-- Should run records support **streaming export** (record grows during the
-  run, finalized at the end) for very long runs where post-hoc capture risks
-  losing the tail?
-- Privacy tiers: a standard way to declare fields/artifacts as
-  retention-limited within a record, so one archive can serve both debugging
-  and compliance clocks?

@@ -65,6 +65,10 @@ desire for more turns.
   consumption record.
 - The tracker is a capability (RFC-0008) visible to tools and feedback, so
   definitions can steer ("you have used 80% of budget") before the wall.
+- Sub-agent spend is parent spend: work a run spawns — sub-agents, nested
+  evaluations — consumes the spawning run's envelope. How a definition
+  apportions its envelope among children is its own choice; that no spend
+  escapes attribution is not.
 
 ### Heartbeats: liveness as proof of work
 
@@ -147,15 +151,3 @@ An adapter certification suite MUST assert:
 - Tool-context beats reach the lease extender (observable via extension
   calls on a fake queue with a fake clock).
 - Completion-gate bypass on envelope exhaustion is exercised and recorded.
-
-## Open questions
-
-- Should budgets extend beyond tokens/cost to **effect budgets** (N writes, N
-  external calls) as a first-class envelope dimension, unifying with policy
-  means-limits (RFC-0004)?
-- Checkpointed enforcement bounds overshoot by the longest single operation;
-  is a cooperative cancellation contract for tools (a token handlers must
-  poll) worth its complexity?
-- Envelope inheritance for sub-agents: fixed subdivision, shared tracker, or
-  definition-declared split? Shared tracker is safest but couples sibling
-  failure modes.

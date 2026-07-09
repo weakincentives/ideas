@@ -129,14 +129,3 @@ An adapter certification suite MUST assert:
 - A stale override (hash mismatch) is excluded on every harness, with the
   exclusion observable in the run record.
 - Experiment identity appears in ledger, results, and run record.
-
-## Open questions
-
-- Hash granularity: content-only, or content plus normalized position?
-  Position-sensitive hashes retire overrides on reorganization (safer,
-  noisier); content-only hashes survive moves (quieter, riskier).
-- Should override *review* be enforceable by the library (signed/approved
-  tags for production), or is that purely a deployment-pipeline concern?
-- Cross-definition reuse: when one section is shared by many definitions,
-  should an override target the shared source or each usage? Current lean:
-  each usage — behavior is always reviewed in the context that ships it.

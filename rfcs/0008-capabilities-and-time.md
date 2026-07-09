@@ -129,14 +129,3 @@ suite MUST assert:
 - No harness leaks ambient time: injected fake clocks drive deadline and
   cadence behavior identically everywhere (verifiable with short synthetic
   deadlines).
-
-## Open questions
-
-- Qualifiers/named bindings (two instances of one protocol) versus wrapper
-  types: wrapper types keep the model simple but multiply nominal types; is
-  the simplicity worth it at fleet scale?
-- Should capability *requirements* be declared statically on the definition
-  (manifest-style) in addition to being discoverable from resolution, so
-  review and deployment tooling can check satisfiability before a run starts?
-- Async providers and structured-concurrency scopes: how much of the registry
-  contract must change for fully async implementations?

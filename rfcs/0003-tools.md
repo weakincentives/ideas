@@ -157,15 +157,3 @@ An adapter certification suite MUST assert, on every harness:
   the reason, without handler execution.
 - Every invocation emits a ledger event with a correlatable call identifier.
 - Argument validation rejects unknown fields identically.
-
-## Open questions
-
-- Should the library standardize an idempotency-key convention (recorded in
-  the ledger, surfaced in the context) rather than leaving replay safety
-  entirely to definitions?
-- Is there a portable way to declare *external* effect classes (read-only,
-  reversible, irreversible) so policies and review tooling can reason about
-  them uniformly?
-- Streaming tool output (long-running commands) versus the atomic result
-  model: where does incremental progress reporting belong — heartbeats,
-  feedback, or a first-class partial-result channel?

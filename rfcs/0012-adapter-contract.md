@@ -122,7 +122,8 @@ One suite, many adapters:
   evaluation's job (RFC-0014).
 - **Determinism discipline.** Scenario prompts are engineered for minimal
   nondeterminism: constrained instructions, small output schemas, short
-  expected behaviors.
+  expected behaviors. Where harness behavior still varies, scenarios assert
+  invariants — ordering, envelope, rollback — not exact counts.
 - **Certification is continuous.** The suite runs in CI per adapter, per
   change; a passing run at release time is the certificate. New scenarios
   reach every adapter automatically — that is the drift cure.
@@ -160,18 +161,3 @@ This RFC *is* the compatibility surface; its own meta-requirements:
 - Suite results MUST be reportable as a capability-by-scenario matrix.
 - The library MUST version the suite; an adapter's certification names the
   suite version it passed.
-
-## Open questions
-
-- Should certification produce a signed, machine-readable artifact that
-  deployment tooling can verify before routing production work to an
-  adapter?
-- How should the suite handle harness-side nondeterminism it cannot fully
-  constrain (e.g., a harness that sometimes plans an extra tool call)?
-  Current lean: assert on invariants (ordering, envelope, rollback) rather
-  than exact counts wherever the contract allows.
-- Pre-action hook expressiveness varies across harnesses: some support
-  deny-with-message, others only deny. Is deny-with-reason required for the
-  native-action-gating capability (policies' explanations being part of
-  their contract, RFC-0004), or is deny-only a permissible, separately
-  declared lower rung?

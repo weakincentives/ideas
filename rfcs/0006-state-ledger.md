@@ -62,8 +62,8 @@ what makes state an explanation rather than a cache.
 
 Reads go through typed accessors over slices: latest value, all values,
 filtered queries. Reducers receive **lazy views** so that append-only
-reducers need not load the slice at all — the design decision that lets a
-file-backed slice run with O(1) appends and makes long runs cheap.
+reducers need not load existing state at all — the design decision that
+keeps long runs cheap regardless of how the substrate is backed.
 
 ### Working state versus history
 
@@ -152,18 +152,3 @@ An adapter certification suite MUST assert:
 - Snapshot → restore round-trips state slices exactly and preserves log
   slices through transaction rollback.
 - Serialized snapshots reload into equal state across process boundaries.
-
-## Open questions
-
-- Should event schemas support declared **compaction** (fold N events into a
-  summary event) for very long runs, and if so, how does compaction interact
-  with the explainability bar?
-- Is a standard cross-implementation serialization for the transcript and its
-  snapshots worth specifying (making run records portable between libraries),
-  or is per-implementation stability enough? With the transcript as the
-  single substrate, this question is now the portability question.
-- With definition-plane and harness-plane events sharing one substrate, does
-  the fold need cross-source ordering guarantees stronger than per-source
-  monotonicity (RFC-0011)? A reducer that consumes both a harness tool-use
-  entry and the library's policy decision for it needs *some* defined
-  interleaving contract.

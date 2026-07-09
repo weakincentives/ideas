@@ -149,12 +149,3 @@ the suite MUST assert across queue backends:
 - The dead-letter flow: max-delivery, immediate classes, excluded classes,
   envelope completeness, source acknowledgment.
 - The shutdown recovery matrix under induced interruption at each phase.
-
-## Open questions
-
-- Message priority and fairness (starvation of long jobs by short ones) —
-  first-class queue feature, or deployment topology (separate queues per
-  class)?
-- Should the reply pattern standardize *progress* replies (multiple
-  non-final replies before finalization) as an alternative to out-of-band
-  status stores for long runs?
