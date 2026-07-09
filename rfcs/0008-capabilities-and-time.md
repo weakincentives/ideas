@@ -10,122 +10,96 @@ Everything a definition needs from the outside world — clients, stores,
 trackers, clocks — is declared as a **typed capability** and resolved through
 an explicit registry with scoped lifecycles. Nothing is ambient. Time itself
 is a capability: monotonic time, wall-clock time, and sleeping are narrow
-injectable protocols, and direct system-time calls are prohibited in the
-definition layer. The payoff is the property that makes everything else in
-this collection testable: **a definition's behavior is a function of its
-declared inputs.**
+injectable protocols, and direct system-time calls are prohibited. The payoff
+is the property everything else depends on: **a definition's behavior is a
+function of its declared inputs.**
 
 ## Motivation
 
-Unattended agents are distributed systems, and the classic sins of
-distributed-systems code — ambient singletons, hidden clients, direct clock
-reads, sleeps sprinkled through logic — carry their usual costs plus one new
-one: the definition stops being portable. A tool handler that reaches for a
-global HTTP client with credentials from the host environment works on the
-developer laptop and silently misbehaves in a remote sandbox.
+Unattended agents are distributed systems, and ambient singletons, hidden
+clients, and raw clock reads carry the usual costs plus one more: the
+definition stops being portable. There is also a testing imperative with
+unusual force — model calls are expensive and nondeterministic, so the rest
+of the system must be cheap and deterministic to test, or nothing gets
+tested. Deadlines, lease cadence, backoff, and feedback timing are all
+time-driven behaviors, untestable against the real clock and trivial against
+an injected one.
 
-There is also a testing imperative with unusual force here. Model calls are
-expensive and nondeterministic, so the *rest* of the system must be cheap and
-deterministic to test, or nothing ever gets tested. Deadlines, lease
-extension, retry backoff, feedback cadence — all are time-driven behaviors
-that are untestable against the real clock and trivially testable against an
-injected one.
+## Capabilities
 
-## Design
+A **binding** associates a protocol (an interface type) with a provider and a
+**scope**. Resolution is lazy by default with optional eager initialization;
+providers may depend on other capabilities, and the registry resolves the
+graph, detecting cycles with an error that names the path. Duplicate bindings
+are a composition-time error, not last-writer-wins.
 
-### Typed capabilities and the registry
-
-- A **binding** associates a protocol (an interface type) with a provider
-  function and a **scope**. The registry is immutable once built; only scope
-  caches are mutable at run time.
-- Resolution is **lazy** by default (construct on first use), with optional
-  eager initialization for fail-fast startup.
-- Providers may depend on other capabilities; the registry resolves the graph
-  and MUST detect cycles with an error that names the path.
-- Duplicate bindings are an error at composition time, not a
-  last-writer-wins surprise.
-
-**Scopes** are few and explicit:
+Scopes are few and explicit:
 
 | Scope | Lifetime | Typical use |
 | --- | --- | --- |
-| Run-scoped | One instance per run | Clients, configuration, budget tracker |
-| Call-scoped | Fresh per tool call | Per-call tracers, request context |
+| Run | One instance per run | Clients, configuration, budget tracker |
+| Call | Fresh per tool call | Per-call tracers, request context |
 | Transient | Fresh per access | Builders, buffers |
 
-Lifecycle protocols round out the contract: post-construction initialization
-(failures prevent caching and surface as provider errors), and disposal in
-reverse construction order when the run's resource context closes.
+Lifecycle completes the contract: optional post-construction initialization
+(failures surface as provider errors and prevent caching) and disposal in
+reverse construction order when the run closes.
 
-### Layered contribution
+Capabilities enter at three layers, later overriding earlier: the
+definition's own bindings, contributions from sections (the section that
+documents a capability can provide its client — co-location again,
+RFC-0002), and per-run bindings at invocation. The layering is what lets one
+definition run in production, evaluation, and unit tests with zero changes —
+swap only the outermost layer.
 
-Capabilities enter a definition at three layers, later layers overriding
-earlier: the definition's own bindings, contributions from sections (a
-section that documents a capability can also provide its client — co-location
-again, RFC-0002), and per-run bindings supplied at invocation. This layering
-is what makes the same definition runnable in production (real clients),
-evaluation (recording clients), and unit tests (fakes) with zero definition
-changes — swap the outermost layer only.
+Handlers, feedback providers, and gates resolve capabilities through their
+injected context by protocol. Optional lookups are explicit, so the
+definition's hard requirements are distinguishable from opportunistic ones —
+and enumerable from the definition alone: "what does this agent need to run?"
+has a static answer.
 
-### Access
+## Time
 
-Tool handlers, feedback providers, and completion gates receive capabilities
-through their injected context (RFC-0003) by asking for a protocol. Optional
-lookups are explicit (`get-or-none`), so a definition's hard requirements are
-distinguishable from its opportunistic ones — and the hard set is statically
-enumerable for review: *what does this agent need to run?* is answerable from
-the definition alone.
-
-### Time as a capability
-
-Time is decomposed into narrow protocols, and components MUST depend on the
-narrowest one they need:
+Time decomposes into narrow protocols, and components depend on the
+narrowest they need:
 
 | Protocol | Provides | Used by |
 | --- | --- | --- |
-| Monotonic time | Elapsed-time measurement | Heartbeats, lease cadence, timeouts |
-| Wall-clock time | Timezone-aware UTC now | Deadlines, event timestamps |
-| Sleep (sync/async) | Delay | Pollers, backoff |
+| Monotonic time | Elapsed measurement | Heartbeats, lease cadence, timeouts |
+| Wall clock | Timezone-aware UTC now | Deadlines, event timestamps |
+| Sleep | Delay | Pollers, backoff |
 
-Two time domains exist because they answer different questions and fail
-differently: monotonic time never goes backwards but means nothing across
-processes; wall-clock time is comparable across systems but can jump.
-Deadlines are wall-clock; intervals are monotonic; conflating them produces
-bugs that appear only under NTP adjustment — i.e., only in production.
+Two domains exist because they fail differently: monotonic never goes
+backwards but means nothing across processes; wall-clock is comparable across
+systems but can jump. Deadlines are wall-clock; intervals are monotonic;
+conflating them produces bugs that appear only under clock adjustment — that
+is, only in production.
 
 **Prohibition:** direct system-time reads and raw sleeps MUST NOT appear in
-the definition layer or the control plane outside the system-clock
-implementation itself. This is a lintable rule and SHOULD be enforced
-mechanically.
-
-The test double is a **fake clock** that advances instantly on sleep and
-supports explicit advancement — turning "wait 10 minutes to observe lease
-expiry" into a microsecond assertion. Every time-driven contract in this
-collection (RFC-0005 cadences, RFC-0009 envelopes and leases, RFC-0010
-visibility timeouts) is expected to be tested this way.
+the definition layer or the control plane outside the system clock itself.
+This is a lintable rule and SHOULD be enforced mechanically. The test double
+is a fake clock that advances instantly on sleep — turning "wait ten minutes
+to observe lease expiry" into a microsecond assertion. Every time-driven
+contract in this collection is expected to be tested this way.
 
 ## Anti-patterns
 
-- **The service locator.** A god object passed everywhere with getters for
-  everything is ambient state with extra steps; contexts should expose the
-  narrow set the component declared.
+- **The service locator.** A god object with getters for everything is
+  ambient state with extra steps; contexts expose the declared narrow set.
 - **Config-driven conditionals.** Branching on environment names ("if prod")
-  instead of binding different capabilities per environment reintroduces
-  untestable divergence.
-- **Clock mixing.** Comparing a monotonic reading with a wall-clock deadline;
-  measuring elapsed time by subtracting wall-clock stamps.
-- **Test-only seams.** If tests need a different wiring path than production
-  (monkeypatching, private setters), the capability model has failed; the
-  wiring path must be the same, with different bindings.
+  instead of binding different capabilities reintroduces untestable
+  divergence.
+- **Clock mixing.** Comparing a monotonic reading to a wall-clock deadline,
+  or measuring elapsed time from wall-clock stamps.
+- **Test-only seams.** If tests need a different wiring path than production,
+  the capability model has failed; same path, different bindings.
 
 ## Compatibility surface
 
-Most of this RFC binds the library rather than adapters, but a certification
-suite MUST assert:
+An adapter certification suite MUST assert:
 
 - Tool contexts resolve the same declared capabilities on every harness.
-- Capability lifecycle holds across a run: run-scoped instances are stable
-  within a run, disposed at its end, on every harness.
-- No harness leaks ambient time: injected fake clocks drive deadline and
-  cadence behavior identically everywhere (verifiable with short synthetic
-  deadlines).
+- Run-scoped instances are stable within a run and disposed at its end, on
+  every harness.
+- No harness leaks ambient time: injected clocks drive deadline and cadence
+  behavior identically everywhere.

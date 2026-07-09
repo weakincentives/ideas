@@ -6,137 +6,114 @@
 
 ## Summary
 
-Evaluation is not a side activity; it is the control loop that makes every
-other kind of change safe — prompt overrides, definition refactors, harness
-upgrades, model migrations. The contract: **datasets** of typed samples;
-**evaluators** as pure functions over outputs *and over the state ledger*
-(behavioral assertions, not just answer-matching); evaluation runs that
-execute through the **same production execution path** (same loops, queues,
-envelopes, run records) rather than a parallel test harness; **experiments**
-(RFC-0013) as the comparison unit; and — because eval volume outruns human
-attention — **analysis agents** that investigate run records automatically.
+Evaluation is the loop that makes every other change safe — prompt overrides,
+definition refactors, harness upgrades, model migrations. The contract:
+**datasets** of typed samples; **evaluators** as pure functions over outputs
+*and over the run's state* (behavioral assertions, not just answer-matching);
+evaluation runs executed through the **same production path** as real
+traffic; **experiments** (RFC-0013) as the unit of comparison; and, because
+volume outruns human attention, **analysis agents** that investigate run
+records automatically.
 
 ## Motivation
 
-Teams that fuse definition and harness rewrite their agents when the harness
-changes. Teams that separate them (RFC-0001) still face the question: *how do
-you know the agent survived the move?* The compatibility suite (RFC-0012)
-proves the adapter preserved mechanics; only evaluation proves the agent
-still does its job well. The same holds for every model upgrade and every
-prompt tweak. Without an evaluation loop, each of those is a leap of faith
-taken in production; with one, they are ordinary changes with regression
-gates.
+The compatibility suite (RFC-0012) proves an adapter preserved mechanics;
+only evaluation proves the agent still does its job well. Without it, every
+model upgrade, harness move, and prompt tweak is a leap of faith taken in
+production; with it, they are ordinary changes with regression gates. Two
+agent realities shape the design: quality is only partly about final answers
+— *how* the agent worked is often the regression that matters — and agent
+evaluation is expensive, so it must scale on the same distribution substrate
+the fleet already runs (RFC-0010).
 
-Two agent-specific realities shape the design. First, agent quality is only
-partly about final answers — *how* the agent worked (which tools, how many
-calls, how much budget, whether it verified before claiming) is often the
-regression that matters, and answer-matching alone misses it. Second,
-agent evaluation is expensive and slow, so it must scale out on exactly the
-work-distribution substrate the fleet already has (RFC-0010), and its
-failures deserve the same forensics (RFC-0011).
+## Datasets and evaluators
 
-## Design
+A sample is `(id, input, expected)` with typed fields; a dataset is an
+immutable, loadable collection with stable ids so comparisons join across
+runs. Datasets accumulate: **every interesting production failure — dead
+letters, anomalous run records — is a candidate sample.** That pipeline is
+how an unattended fleet learns from its incidents.
 
-### Datasets and samples
+An evaluator is a pure function `(output, expected) → score`, a score
+carrying a normalized value, a pass/fail verdict, and a reason; evaluators
+compose with all-of/any-of logic.
 
-A sample is `(id, input, expected)` with typed input and expectation;
-a dataset is an immutable, loadable collection of them. Nothing exotic —
-the important properties are that samples are versionable data, that ids are
-stable (comparisons across runs join on them), and that datasets accumulate:
-**every interesting production failure (RFC-0010's dead letters, RFC-0011's
-run records) is a candidate sample.** The DLQ-to-dataset pipeline is how an
-unattended fleet learns from its incidents.
+**Behavioral evaluators** additionally receive read access to the run's state
+views (RFC-0006) and assert on trajectory: a tool was or wasn't called, call
+counts fall in range, no tool failed, token usage stayed under a bound, a
+predicate holds over a typed slice. This is the payoff of the transcript
+contract — behavior is data, so behavior is assertable with zero added
+instrumentation. Without it, degenerate passes go undetected: an agent that
+hardcodes the expected answer or skips verification looks identical to a good
+one.
 
-### Evaluators
+**Judge evaluators** use a model against a rubric with a small calibrated
+ordinal scale and a pass threshold, the criterion text versioned with the
+evaluation config. Judges are evaluators like any other — composed behind
+cheap objective gates, never a monoculture.
 
-An evaluator is a pure function `(output, expected) → score`, where a score
-carries a normalized value, a pass/fail verdict, and a human-readable reason.
-Composition is first-class: all-of (mean/AND), any-of (max/OR).
-
-**Behavioral evaluators** additionally receive a read view of the run's state
-ledger (RFC-0006) and assert on trajectory: a given tool was (or was never)
-called; call counts fall in a range; no tool call failed; token usage stayed
-under a bound; an arbitrary predicate holds over a typed slice. This is the
-payoff of the event-sourced state contract — the run's *behavior* is data, so
-behavior is assertable with zero instrumentation added to the definition.
-
-**Judge evaluators** use a model to grade against a rubric with a small
-calibrated ordinal scale (e.g., five steps mapping to fixed values and a
-pass threshold), with the criterion text part of the versioned evaluation
-config. Judges are evaluators like any other — composable with exact checks,
-so cheap objective assertions gate before expensive subjective ones.
-
-### Evaluation runs on the production path
+## The production path
 
 An evaluation executes the definition through the same loop, adapter,
 envelope, and run-record machinery as production traffic — the eval loop
-*wraps* the production loop rather than replacing it. Requests arrive as
+wraps the production loop rather than replacing it. Requests arrive as
 `(sample, experiment)` pairs on a queue; results return with score, latency,
-error, and a link to the per-sample run record. Consequences that are
-normative:
+error, and a link to the per-sample run record. Consequences: what is
+measured is measured *with* the guardrails and transactional semantics of
+production, not an idealized bench; evaluation scales horizontally like any
+other work, and poisoned samples dead-letter instead of wedging the sweep;
+and every scored sample has a full run record, so "why did this fail?" has
+the same answer path as a production incident. Optimizations such as caching
+are permitted only where they provably do not change what is measured —
+"measure what ships" is the line.
 
-- Whatever is measured, is measured **with** the guardrails, envelopes, and
-  transactional semantics of production — not an idealized bench.
-- Evaluation scales horizontally like any other work (RFC-0010), and poisoned
-  samples dead-letter instead of wedging the sweep.
-- Every scored sample has a full run record, so "why did this fail?" has the
-  same answer path as production incidents.
+## Experiments and comparison
 
-### Experiments and comparison
+The experiment is the unit of comparison: one dataset submitted under
+baseline and treatments; results grouped by experiment; pass rates, scores,
+and latency compared with deltas. Reports MUST keep per-sample results
+addressable so regressions decompose into named, replayable cases, and SHOULD
+surface sample counts alongside every comparison — small eval sets breed
+overconfident promotions. This machinery serves rollouts as well as research:
+a new model, harness version, or override tag is a treatment; promotion means
+it beat baseline on the regression dataset; and the promoted variant's
+identity is in every subsequent run record (RFC-0013).
 
-The experiment (RFC-0013) is the unit of comparison: submit one dataset under
-baseline and treatments; group results by experiment; report pass rates, mean
-scores, latency; compare treatment to baseline with deltas and relative
-improvement. Reports MUST keep per-sample results addressable (not just
-aggregates) so regressions decompose into named, replayable cases.
+## Analysis agents
 
-This machinery serves rollouts as well as research: a new model, harness
-version, or override tag is an experiment; promotion is "the treatment beat
-baseline on the regression dataset"; and the promoted variant's identity is
-in every subsequent run record.
-
-### Analysis agents
-
-A fleet's evaluation and production runs produce more records than any team
-reads. The final stage of the control loop is automated analysis:
+A fleet produces more records than any team reads. The final stage is
+automated analysis:
 
 - Execution loops emit **completion notifications** (source, run-record
-  reference, success, score) to a queue as they finish — fire-and-forget;
-  producers know nothing about analysis.
-- A **forwarder** applies sampling and budget policy: always forward
-  failures, sample successes at a low rate, stop at a request budget per
-  window. Analysis must never out-spend the work it analyzes.
-- An **analysis loop** is itself an agent (an ordinary definition on this
-  same architecture) whose tool surface is the run-record query interface
-  (RFC-0011), tasked with an objective ("why do failures cluster on samples
-  with long inputs?") and producing analysis reports — which are themselves
-  run records.
+  reference, outcome, score) to a queue — fire-and-forget; producers know
+  nothing about analysis.
+- A **forwarder** applies sampling and budget: always forward failures,
+  sample successes at a low rate, stop at a request budget per window.
+  Analysis must never out-spend the work it analyzes.
+- The **analysis loop** is itself an ordinary agent on this architecture,
+  whose tool surface is the run-record query interface (RFC-0011) and whose
+  objective is stated per deployment.
 
-Analysis agents observe; they do not act. An analysis agent MUST NOT mutate
-the systems it analyzes — no filed changes, no configuration writes, no
-override promotion. Its deliverable is a **structured finding**: a typed
-report carrying the conclusion, evidence references (run-record identities
-and the queries that support the claim), and — where a remedy is obvious —
-machine-actionable proposal payloads: a candidate override (RFC-0013), a
-candidate regression sample, a suggested error classification (RFC-0010).
-Downstream automation or humans act on proposals through the normal gates;
-in particular, a proposed override earns promotion through evaluation like
-any other change. Structure is what makes findings cheap to act on;
-provenance is what makes acting on them safe.
+Analysis agents observe; they do not act. Their deliverable is a
+**structured finding**: a typed report carrying the conclusion, evidence
+references (run-record identities and the queries supporting the claim), and
+— where a remedy is obvious — machine-actionable proposals: a candidate
+override (RFC-0013), a candidate regression sample, a suggested error
+classification (RFC-0010). Proposals earn adoption through the normal gates;
+a proposed override is promoted by evaluation like any other change.
+Structure makes findings cheap to act on; provenance makes acting on them
+safe.
 
 The best debugger for a complex agent is another agent with a query tool and
-a stable schema. That claim only holds because of the rest of the collection:
-complete records (0011), typed state (0006), attributable variants (0013).
+a stable schema — a claim that only holds because of the rest of the
+collection: complete records, typed state, attributable variants.
 
 ## Anti-patterns
 
 - **The parallel bench.** An eval harness with its own execution path
   measures a system that doesn't ship.
-- **Answer-only scoring.** Passing outputs from degenerate behavior (agent
-  hardcodes the expected string, skips verification) go undetected without
+- **Answer-only scoring.** Degenerate behavior passes undetected without
   behavioral evaluators.
-- **Judge monoculture.** A single LLM judge with an uncalibrated scale as the
-  only signal; judges drift, and objective gates must anchor them.
 - **Eval-set rot.** Datasets that never ingest production failures measure
   the agent against last year's world.
 - **Unbudgeted analysis.** Meta-agents analyzing every run recreate the cost
@@ -144,11 +121,10 @@ complete records (0011), typed state (0006), attributable variants (0013).
 
 ## Compatibility surface
 
-An adapter certification suite MUST assert (thin here by design — most of
-this RFC binds the library):
+An adapter certification suite MUST assert:
 
-- The evaluation path produces per-sample run records identical in structure
-  to production records, on every harness.
-- Behavioral evaluators read the same ledger shapes across harnesses (follows
-  from RFC-0006 parity, asserted end-to-end here).
+- The evaluation path produces per-sample run records structurally identical
+  to production records on every harness.
+- Behavioral evaluators read the same state shapes across harnesses,
+  end to end.
 - Experiment identity flows from request to result to run record unchanged.
