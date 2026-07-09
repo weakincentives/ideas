@@ -98,8 +98,9 @@ Every tool call follows one canonical sequence:
 7. On success: **commit**, notify policies so they can update their state,
    and run feedback providers (RFC-0005).
 8. On failure (structured failure or caught exception): **restore** the
-   snapshot. The failed call appears in the ledger's log (append-only record)
-   but MUST NOT leave effects in mutable state or the workspace.
+   snapshot. The failed call remains on the run's transcript (the substrate
+   is append-only) but MUST NOT leave effects in mutable state or the
+   workspace.
 9. **Record** the invocation — parameters, outcome, correlation id — in the
    event ledger.
 

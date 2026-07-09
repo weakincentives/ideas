@@ -8,12 +8,14 @@
 
 Every run must be able to explain itself after the fact, to someone who
 wasn't there, without the process that produced it. Three contracts deliver
-that: a **canonical transcript** — one schema for the model-conversation
-record regardless of which harness produced it; the **run record** (debug
-bundle) — a self-contained, integrity-checked archive of everything about one
-run; and **queryability** — the run record must answer structured questions
-with standard query tooling, because its most important reader is another
-program (increasingly, another agent).
+that: the **transcript** — the run's single storage abstraction: one
+canonical, append-only event stream of every input, output, and action taken
+by the harness, model, and definition, regardless of which harness produced
+it, consumed through **views** shaped for different audiences; the **run
+record** (debug bundle) — a self-contained, integrity-checked archive of the
+transcript and everything else about one run; and **queryability** — the run
+record must answer structured questions with standard query tooling, because
+its most important reader is another program (increasingly, another agent).
 
 ## Motivation
 
@@ -34,9 +36,10 @@ proven either.
 
 ## Design
 
-### The canonical transcript
+### The transcript: one substrate, many views
 
-One schema, many sources. Every entry carries a common envelope:
+One schema, many sources, one stream per run. Every entry carries a common
+envelope:
 
 | Field | Meaning |
 | --- | --- |
@@ -49,17 +52,24 @@ One schema, many sources. Every entry carries a common envelope:
 | detail | Adapter-specific payload, opaque to generic consumers |
 | raw | Optional original source data |
 
-The canonical **entry-type vocabulary** is deliberately small: user message,
-assistant message, tool use, tool result, thinking, system event, token
-usage, error — plus **unknown** for forward compatibility. Adapters map their
-harness's native stream (file tails, protocol notifications, in-memory
-events) into this vocabulary; anything unmappable becomes `unknown` with its
-raw form preserved, never dropped and never mislabeled.
+The canonical **entry-type vocabulary** is deliberately small. Conversation
+types: user message, assistant message, tool use, tool result, thinking,
+system event, token usage, error. Definition-plane types: state event, policy
+decision, feedback delivered, completion verdict. Plus **unknown** for
+forward compatibility. Adapters map their harness's native stream (file
+tails, protocol notifications, in-memory events) into this vocabulary, and
+the library appends the definition-plane entries itself; anything unmappable
+becomes `unknown` with its raw form preserved, never dropped and never
+mislabeled.
 
 Normative semantics:
 
-1. **Non-blocking emission.** Transcript failures never fail the run; they
-   degrade the record and are themselves recorded as warnings.
+1. **Two reliability classes.** Definition-plane entries (state events,
+   policy decisions) are authoritative — their append is transactional with
+   the effect they record, and a failed append fails the operation.
+   Harness-derived entries (conversation mirroring) are best-effort — their
+   failures never fail the run; they degrade the record and are themselves
+   recorded as warnings.
 2. **Ordering.** Within one source, sequence numbers are strictly monotonic;
    causal pairs (tool use before its tool result) MUST be ordered.
 3. **Fidelity split.** The envelope is the portable contract; harness detail
@@ -68,10 +78,14 @@ Normative semantics:
 4. **Sub-agents are sources**, not noise: a harness that spawns nested agents
    emits their transcripts under distinct source labels within the same run.
 
-The transcript and the state ledger (RFC-0006) are two projections of one
-run: the conversation view and the state view, cross-referenced by
-correlation ids (a tool-use entry and its ledger invocation event share a
-call id).
+The transcript is the substrate, not one view among several. The
+**conversation view** (the model dialogue), the **state view** (typed slices
+folded by reducers, RFC-0006), and the **operational view** (timings, token
+usage, envelope consumption) are all projections of the same stream, so they
+cannot disagree with each other — a tool-use entry, its policy decision, its
+state effect, and its metrics are the same events read through different
+lenses, joined by correlation ids. New audiences get new views, not new
+logs.
 
 ### The run record
 

@@ -224,10 +224,11 @@ event ledger should be good enough to answer why the agent acted, what evidence
 it had, what policies constrained it, and which effects committed. Full replay
 may be impossible when external data expires or privacy boundaries prevent
 retention, but the run record should still preserve intent, evidence references,
-integration contracts, and decision points. Alongside the ledger, a canonical
-transcript — one schema for the model conversation regardless of which harness
-produced it — is the portable record of the run and the oracle the
-compatibility suite asserts against.
+integration contracts, and decision points. The substrate for all of it is the
+transcript: one canonical, append-only event stream per run — every input,
+output, and action taken by harness, model, and definition — from which the
+state view, the conversation view, and the operational view are derived, and
+against which the compatibility suite asserts.
 
 Around the definition sits the machinery that makes iterating on it safe.
 Every overridable unit — section bodies, tool descriptions, worked examples —

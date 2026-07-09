@@ -75,6 +75,16 @@ A **dead-letter policy** decides when to stop retrying:
 - Ambiguity defaults to retry — dead-lettering is the fail-closed direction
   for *work* only when repetition is provably useless.
 
+Ownership is split by kind of knowledge. The **semantic classification** —
+which error classes are permanent *for this agent* — belongs to the
+definition, declared against the library's typed error taxonomy and carried
+with the definition wherever it runs. The **mechanics** — destination queue,
+maximum delivery count, retention — belong to deployment configuration. The
+split only works because adapters are required to normalize every harness
+failure into the typed taxonomy (RFC-0012): that error-translation layer is
+the encapsulation boundary that makes a definition's failure semantics
+portable across harnesses.
+
 The dead letter itself is a forensic envelope, not a bare payload: original
 message and id, source queue, delivery count, last error (type and message),
 first-received and dead-lettered timestamps, and correlation ids linking to
@@ -148,7 +158,3 @@ the suite MUST assert across queue backends:
 - Should the reply pattern standardize *progress* replies (multiple
   non-final replies before finalization) as an alternative to out-of-band
   status stores for long runs?
-- How much of the DLQ decision belongs to the *definition* (which error
-  classes are semantically non-retriable for this agent) versus deployment
-  configuration? A definition-declared hint list is attractive but couples
-  rings.

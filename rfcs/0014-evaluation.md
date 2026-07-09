@@ -112,6 +112,18 @@ reads. The final stage of the control loop is automated analysis:
   with long inputs?") and producing analysis reports — which are themselves
   run records.
 
+Analysis agents observe; they do not act. An analysis agent MUST NOT mutate
+the systems it analyzes — no filed changes, no configuration writes, no
+override promotion. Its deliverable is a **structured finding**: a typed
+report carrying the conclusion, evidence references (run-record identities
+and the queries that support the claim), and — where a remedy is obvious —
+machine-actionable proposal payloads: a candidate override (RFC-0013), a
+candidate regression sample, a suggested error classification (RFC-0010).
+Downstream automation or humans act on proposals through the normal gates;
+in particular, a proposed override earns promotion through evaluation like
+any other change. Structure is what makes findings cheap to act on;
+provenance is what makes acting on them safe.
+
 The best debugger for a complex agent is another agent with a query tool and
 a stable schema. That claim only holds because of the rest of the collection:
 complete records (0011), typed state (0006), attributable variants (0013).
@@ -149,6 +161,6 @@ this RFC binds the library):
 - Caching: repeated identical (sample, definition-version) executions are
   wasteful, but caching model behavior undermines "measure what ships" —
   where is the line?
-- Should analysis agents be able to *act* (file issues, propose override
-  payloads per RFC-0013) or only report? Proposal-only is the safe default;
-  the promotion gate stays with evaluation.
+- What is the minimal standard schema for structured findings (conclusion,
+  evidence references, proposal payloads) that downstream automation can rely
+  on across implementations?

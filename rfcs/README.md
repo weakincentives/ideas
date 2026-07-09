@@ -69,6 +69,30 @@ order, though 0012 (compatibility) references almost everything else.
   when at least one implementation conforms and the compatibility surface is
   covered by a runnable suite.
 
+## Decision log
+
+Design forks resolved so far, folded into the RFCs as normative text:
+
+1. **Policies gate the full action surface** (RFC-0004, RFC-0012). Native
+   harness tools are policy-gated via adapter pre-action hooks with the same
+   check/observe/deny-with-reason semantics; harnesses without an
+   interception point declare the capability absent rather than approximate.
+2. **The transcript is the substrate** (RFC-0006, RFC-0011). One append-only
+   event stream per run is the storage abstraction; the conversation view,
+   the state view (reducer-folded slices), and the operational view are
+   projections of it. Definition-plane appends are authoritative;
+   harness-derived mirroring is best-effort.
+3. **Failure semantics belong to the definition** (RFC-0010, RFC-0012).
+   Retriability and dead-letter classification are declared by the definition
+   against the library's typed error taxonomy; the adapter's error-translation
+   layer provides the encapsulation that makes them portable; deployment owns
+   the mechanics (queues, delivery counts, retention).
+4. **Analysis agents report, never act** (RFC-0014). Their deliverable is a
+   structured finding — conclusion, evidence references, machine-actionable
+   proposal payloads — acted on through the normal gates.
+5. **The adapter floor is Core tier plus transcript emission** (RFC-0012).
+   Below the floor an integration is not an adapter and is not certifiable.
+
 ## Glossary
 
 | Term | Meaning |
@@ -81,7 +105,8 @@ order, though 0012 (compatibility) references almost everything else.
 | Policy | A fail-closed invariant gating actions (RFC-0004) |
 | Feedback provider | An observer injecting advisory guidance mid-run (RFC-0005) |
 | Completion gate | A check that blocks termination until success criteria hold (RFC-0005) |
-| Event ledger | The typed, reducer-driven record of everything that happened (RFC-0006) |
+| Transcript | The run's single append-only event stream — every input, output, and action; the substrate all views derive from (RFC-0011) |
+| Event ledger | The typed state view folded from the transcript by reducers (RFC-0006) |
 | Workspace | The environment the agent acts on, declared as data (RFC-0007) |
 | Envelope | The time/budget/liveness bounds on one run (RFC-0009) |
 | Run record | The self-contained, queryable artifact explaining one run (RFC-0011) |

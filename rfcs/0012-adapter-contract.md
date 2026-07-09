@@ -41,7 +41,9 @@ One evaluation flows through a fixed sequence, and the adapter owns only the
 translation steps: render the definition (once, via the library — RFC-0002);
 map the rendered capability set onto the harness's tool/knowledge surface;
 attach the definition's policy gates, feedback injection points, and
-completion gates to the harness's hook or continuation mechanism; run the
+completion gates to the harness's hook or continuation mechanism — including
+routing native harness actions through policy checks where the harness
+exposes a pre-action interception point (RFC-0004); run the
 harness against the materialized workspace (RFC-0007); translate the
 harness's native stream into canonical events and transcript entries
 (RFC-0006, RFC-0011); and parse structured output through the library.
@@ -65,8 +67,12 @@ The prohibitions are the contract's teeth. An adapter MUST NOT:
 - mutate state outside typed events, or emit events out of contract order;
 - inject instructions into the model's context beyond declared mechanisms
   (feedback delivery, completion feedback — each of which is recorded);
-- swallow harness errors into silence — errors normalize into the library's
-  typed taxonomy with phase attribution.
+- swallow harness errors into silence — every harness failure normalizes
+  into the library's typed error taxonomy with phase attribution. This
+  translation layer is load-bearing encapsulation, not logging hygiene:
+  definitions declare retriability and dead-letter classifications against
+  the typed taxonomy (RFC-0010), so a harness error that leaks through
+  untranslated silently breaks failure handling.
 
 Where a harness cannot support a contract at all, the adapter declares the
 capability absent (below) rather than approximating it. **An honest gap is
@@ -81,13 +87,20 @@ Adapters declare what they support against a tiered vocabulary, roughly:
 | Core | Evaluation, definition-tool bridging, structured output |
 | Observability | Canonical events, transcript emission |
 | Semantics | Transactions, progressive disclosure, envelope enforcement |
-| Guardrails | Policy gating, feedback delivery, completion gates |
+| Guardrails | Policy gating of definition tools, native-action gating, feedback delivery, completion gates |
 | Environment | Sandbox posture, egress policy, workspace isolation, knowledge mounting |
 
 Declarations MUST be conservative-by-default for the upper tiers so a new
 adapter starts honest and expands as it earns each flag. The declaration is
 machine-readable — it gates the suite, and it belongs in the run record
 (RFC-0011) so an operator can see which guarantees a given run actually had.
+
+**The floor.** An integration MUST support the Core tier plus transcript
+emission to be called an adapter at all; below that, it is not certifiable
+and none of the portability claims in this collection apply to it. The floor
+is where it is because the transcript is both the substrate for state
+(RFC-0006, RFC-0011) and the suite's oracle — an integration that cannot
+emit it cannot be reasoned about, compared, or debugged.
 
 ### The compatibility suite
 
@@ -119,7 +132,9 @@ One suite, many adapters:
 The compatibility surfaces named by the other RFCs enumerate the assertions;
 in outline the suite covers: rendered-surface parity; tool bridging and
 schema parity; transactional rollback observed through both state and
-workspace; policy denial delivery; feedback delivery and recording;
+workspace; policy denial delivery, including native-action gating where
+declared; error-taxonomy normalization (the same induced failure classifies
+identically across harnesses); feedback delivery and recording;
 completion blocking, passing, and envelope bypass; deadline and budget
 checkpoint behavior; transcript envelope/ordering/vocabulary; run-record
 integrity; and environment posture (isolation, egress default-deny) where
@@ -155,6 +170,8 @@ This RFC *is* the compatibility surface; its own meta-requirements:
   constrain (e.g., a harness that sometimes plans an extra tool call)?
   Current lean: assert on invariants (ordering, envelope, rollback) rather
   than exact counts wherever the contract allows.
-- Is there a minimum capability floor below which an integration should not
-  be called an adapter at all (e.g., core tier plus transcript), to keep the
-  ecosystem's floor meaningful?
+- Pre-action hook expressiveness varies across harnesses: some support
+  deny-with-message, others only deny. Is deny-with-reason required for the
+  native-action-gating capability (policies' explanations being part of
+  their contract, RFC-0004), or is deny-only a permissible, separately
+  declared lower rung?

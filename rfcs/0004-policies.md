@@ -87,6 +87,22 @@ credential/resource to be bound"), evidence requirements ("a passing test
 event must exist in the ledger newer than the last source change"), and
 rate/means limits ("no more than N destructive calls per run").
 
+### The gated action surface
+
+Policies gate **actions**, and the action vocabulary is not limited to the
+definition's own tools. Native harness actions — built-in file edits, command
+execution, web access, sub-agent spawning — are actions like any other, and
+where the harness exposes a pre-action interception point, the adapter MUST
+route them through the same policy checks with the same semantics: check
+before execution, observe after commit, deny with a reason the model reads.
+Mechanically this is invisible to the policy: it sees a named action with
+parameters, not a distinction between "bridged" and "native".
+
+Where a harness offers no interception point, the adapter MUST declare the
+capability absent (RFC-0012) rather than approximate it — an honestly ungated
+native surface is visible in the capability matrix and can be mitigated by
+disabling native tools; a silently ungated one is a hole in the invariant.
+
 ### Interaction with transactions
 
 Policies see `observe` only for **committed** results — a rolled-back action
@@ -133,6 +149,9 @@ An adapter certification suite MUST assert:
 
 - A gated action denied by policy does not execute (no handler effects), and
   the model receives the denial reason as a structured failure.
+- Where native-action gating is declared, a policy denial prevents the native
+  action's effects and the reason reaches the model, exactly as for
+  definition tools.
 - Policy state updates only on committed results; a rolled-back action leaves
   policy state unchanged.
 - The same definition produces the same allow/deny decisions for the same
@@ -141,13 +160,11 @@ An adapter certification suite MUST assert:
 
 ## Open questions
 
-- Should policies be able to gate **native harness tools** (file edits, shell
-  commands provided by the harness) uniformly with definition tools? This
-  requires an adapter hook contract and is the strongest argument for
-  standardizing pre-action hooks in RFC-0012.
 - Is a declarative policy *language* (data, not code) worth standardizing for
   the canonical shapes, so policies are portable across implementations and
-  reviewable without executing anything?
+  reviewable without executing anything? The case is stronger now that
+  policies span native harness actions: a data format would make the full
+  gated surface reviewable without executing adapter code.
 - Rollback notification: should policies observe restores explicitly rather
   than relying on ledger rewind, for implementations whose policy state is
   expensive to recompute?

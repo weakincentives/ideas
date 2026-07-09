@@ -2,19 +2,20 @@
 
 - Status: Draft
 - Ring: definition
-- Depends on: RFC-0001
+- Depends on: RFC-0001, RFC-0011
 
 ## Summary
 
-All run state flows through one mechanism: **typed events** dispatched to
-**pure reducers** that produce new versions of **typed state slices**. There
-is no hidden mutable state. Snapshots of the whole state are first-class,
+All run state flows through one mechanism: **typed events** appended to the
+run's **transcript** — the single, append-only event stream of everything the
+harness, model, and definition did (RFC-0011) — and folded by **pure
+reducers** into **typed state slices**. The transcript is the storage
+abstraction; slices are materialized views over it; there is no hidden
+mutable state beside them. Snapshots of the folded state are first-class,
 serializable, and restorable — which is what makes tool transactions
 (RFC-0003), policy state (RFC-0004), and honest run records (RFC-0011)
-possible. The ledger distinguishes **working state** (rolled back with failed
-transactions) from **append-only logs** (preserved through rollback), because
-"what the agent believes" and "what actually happened" are different things
-with different lifecycles.
+possible. Rollback resets views, never the substrate: "what the agent
+believes" can be rewound; "what actually happened" cannot.
 
 ## Motivation
 
@@ -52,9 +53,10 @@ pays off in systems nobody watches.
   their inputs. Multiple reducers may respond to one event, each targeting
   its own slice.
 
-Dispatch is the only mutation path. Convenience accessors (seed, append,
-clear) MUST desugar to events so that *every* change is a recorded event —
-this is what makes the ledger an explanation rather than a cache.
+Appending to the transcript is the only mutation path: dispatch means
+append-then-fold. Convenience accessors (seed, append, clear) MUST desugar to
+events so that *every* change is a recorded entry on the substrate — this is
+what makes state an explanation rather than a cache.
 
 ### Reading state
 
@@ -63,19 +65,20 @@ filtered queries. Reducers receive **lazy views** so that append-only
 reducers need not load the slice at all — the design decision that lets a
 file-backed slice run with O(1) appends and makes long runs cheap.
 
-### Working state versus logs
+### Working state versus history
 
 Every slice carries a policy: **state** or **log**.
 
 - **State slices** are the agent's working memory. Transactions snapshot and
   restore them; a failed tool leaves them untouched (RFC-0003).
-- **Log slices** are the historical record — tool invocations, feedback,
-  decisions. Rollback MUST preserve them: the fact that a tool ran and failed
-  is itself part of history, and erasing it would falsify the run record.
+- **Log slices** are direct projections of history — tool invocations,
+  feedback, decisions — and rollback MUST leave them intact.
 
-This distinction is the resolution of an apparent paradox in RFC-0003
-("failed tools leave no trace" — no trace *in working state*; the attempt is
-still on the log).
+Because the substrate is append-only, the second rule is structural rather
+than procedural: history cannot be erased, only views rewound. This is the
+resolution of an apparent paradox in RFC-0003 ("failed tools leave no trace"
+— no trace *in working state*; the attempt is still on the transcript, and
+the run record shows it).
 
 ### Snapshots
 
@@ -88,14 +91,20 @@ and the "state after" section of the run record.
 Restore semantics respect slice policy: state slices are replaced; log slices
 are preserved.
 
+A snapshot is a materialized checkpoint of the fold, not a second source of
+truth: an implementation that can re-fold the transcript may treat snapshots
+purely as a restore optimization, but the serialized form is still normative,
+because crashed runs are resumed from it.
+
 ### Storage independence
 
-Slices are a protocol, not a data structure. In-memory backing suits short
-runs; append-only file backing (one record per event, typed for polymorphic
-reload) suits crash recovery and audit; remote backing suits fleets. The
-normative requirements are behavioral: identical operation semantics across
-backings, immutable views, and atomic replace. A definition MUST NOT need to
-know how its slices are stored.
+The transcript and its slice views are protocols, not data structures.
+In-memory backing suits short runs; append-only file backing (one record per
+event, typed for polymorphic reload) suits crash recovery and audit; remote
+backing suits fleets. The normative requirements are behavioral: identical
+operation semantics across backings, immutable views, and atomic replace of
+materializations. A definition MUST NOT need to know how its transcript or
+slices are stored.
 
 ### Session hierarchy
 
@@ -149,10 +158,12 @@ An adapter certification suite MUST assert:
 - Should event schemas support declared **compaction** (fold N events into a
   summary event) for very long runs, and if so, how does compaction interact
   with the explainability bar?
-- Is a standard cross-implementation serialization for snapshots worth
-  specifying (making run records portable between libraries), or is
-  per-implementation stability enough?
-- Where is the line between ledger events and transcript entries (RFC-0011)?
-  Current position: the transcript is the model-conversation view, the ledger
-  is the state view, and they cross-reference by correlation id — but a
-  single unified log with two projections is a defensible alternative.
+- Is a standard cross-implementation serialization for the transcript and its
+  snapshots worth specifying (making run records portable between libraries),
+  or is per-implementation stability enough? With the transcript as the
+  single substrate, this question is now the portability question.
+- With definition-plane and harness-plane events sharing one substrate, does
+  the fold need cross-source ordering guarantees stronger than per-source
+  monotonicity (RFC-0011)? A reducer that consumes both a harness tool-use
+  entry and the library's policy decision for it needs *some* defined
+  interleaving contract.
