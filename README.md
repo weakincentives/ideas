@@ -40,6 +40,10 @@ a better harness appears. Teams that separate them can preserve the reasoning
 structure, tool surface, policies, and completion criteria that encode their
 actual agent IP.
 
+This document states the position. The [RFC collection](rfcs/README.md) turns
+it into specific, testable contracts — one RFC per architectural commitment,
+implementation agnostic throughout (see [Section 8](#8-the-rfc-collection)).
+
 ______________________________________________________________________
 
 ## 2. Tenets
@@ -79,6 +83,20 @@ ______________________________________________________________________
    reason the agent can read and an operator can audit. Adapter compatibility is
    something a framework proves with tests, not something it asserts in
    documentation.
+
+1. **Make the correct path the easy path.** The definition shapes incentives
+   before it enforces constraints: instructions co-located with the tools they
+   document, typed contracts that make invalid payloads unrepresentable,
+   progressive disclosure that spends context only when a capability becomes
+   relevant, and explicit state that gives the model real evidence to reason
+   over. Gates and policies are the backstop, not the strategy.
+
+1. **Evaluation is the control loop.** Every change to a definition — a
+   phrasing override, a refactor, a harness upgrade, a model migration — is an
+   experiment compared against a baseline on a regression dataset, executed
+   through the same path as production traffic. Evaluators assert on behavior
+   recorded in the event ledger, not just on final answers. Without this loop,
+   portability is an option nobody can safely exercise.
 
 ______________________________________________________________________
 
@@ -180,7 +198,10 @@ declared in the definition, and executed through narrow resource protocols
 rather than direct assumptions about the host process. A workspace protocol
 abstracts file reads, writes, listing, streaming, snapshots, and restore. A
 clock can be injected. Secrets and external resources are resolved through
-explicit capabilities with lifetimes and permissions. Tool handlers should not
+explicit capabilities with lifetimes and permissions. Network egress is
+default-deny, and credentials are referenced by name — material is bound at
+run time, outside the agent's reach — so the definition never carries secrets
+and the agent can never widen its own permissions. Tool handlers should not
 know which harness invoked them or where the workspace physically lives.
 
 **The policies** are declarative invariants that gate action. A policy might say
@@ -203,7 +224,21 @@ event ledger should be good enough to answer why the agent acted, what evidence
 it had, what policies constrained it, and which effects committed. Full replay
 may be impossible when external data expires or privacy boundaries prevent
 retention, but the run record should still preserve intent, evidence references,
-integration contracts, and decision points.
+integration contracts, and decision points. Alongside the ledger, a canonical
+transcript — one schema for the model conversation regardless of which harness
+produced it — is the portable record of the run and the oracle the
+compatibility suite asserts against.
+
+Around the definition sits the machinery that makes iterating on it safe.
+Every overridable unit — section bodies, tool descriptions, worked examples —
+carries a content hash; overrides bind to the hash they were written against
+and retire automatically when the underlying content changes, so tuned
+phrasing can never silently splice into instructions it was not written for.
+Overrides group into named tags, tags and feature flags into immutable
+experiments, and experiments are the unit of A/B comparison. Evaluation closes
+the loop: datasets of typed samples, evaluators that assert on outputs and on
+the event ledger itself (which tools were called, whether they succeeded, what
+budget was spent), executed through the same path as production traffic.
 
 These parts constitute the portable definition. They are version-controlled,
 reviewable in one change, and testable without a harness. Unit tests should be
@@ -253,6 +288,11 @@ A new harness appears. An adapter is written. It passes the compatibility suite.
 Existing definitions become runnable there without rewriting prompts, tools, or
 policies. Harness improvements compound across the fleet because agent behavior
 was not trapped inside one runtime.
+
+A new model or harness version ships. The team submits its regression dataset
+under a baseline and a treatment experiment, compares pass rates and behavioral
+assertions, and promotes the winner. The upgrade is an ordinary change with a
+gate, not a leap of faith taken in production.
 
 A new engineer reads one definition to understand what the agent is allowed to
 do and what counts as done. An auditor asks what the agent can touch, what it
@@ -347,7 +387,36 @@ It is what keeps the abstraction honest.
 
 ______________________________________________________________________
 
-## 8. Appendix: The Boundary Diagram
+## 8. The RFC Collection
+
+The [rfcs/](rfcs/README.md) directory develops each commitment above into a
+full design RFC — implementation agnostic, written as contracts with normative
+requirements, invariants, failure modes, anti-patterns, and the observable
+surface a compatibility suite must assert. The collection refines the
+two-box picture below into three rings: the **definition** (the portable
+artifact), the **control plane** (the contracts that make unattended
+delegation safe), and the **harness** (constrained only through the adapter).
+
+| RFC | Title |
+| --- | --- |
+| [0001](rfcs/0001-scope-and-boundary.md) | Scope and the Definition/Harness Boundary |
+| [0002](rfcs/0002-instruction-graph.md) | The Instruction Graph |
+| [0003](rfcs/0003-tools.md) | Tools: The Transactional Side-Effect Boundary |
+| [0004](rfcs/0004-policies.md) | Policies: Declarative Invariants over Workflows |
+| [0005](rfcs/0005-feedback-and-completion.md) | Feedback and Completion Gates |
+| [0006](rfcs/0006-state-ledger.md) | State as an Event Ledger |
+| [0007](rfcs/0007-workspace.md) | Workspace, Sandbox, and Egress |
+| [0008](rfcs/0008-capabilities-and-time.md) | Capabilities, Resources, and Injected Time |
+| [0009](rfcs/0009-execution-envelope.md) | The Execution Envelope: Deadlines, Budgets, Leases, Liveness |
+| [0010](rfcs/0010-work-distribution.md) | Work Distribution: Queues, Dead Letters, and Shutdown |
+| [0011](rfcs/0011-observability.md) | The Run Record: Transcripts, Bundles, and Queryability |
+| [0012](rfcs/0012-adapter-contract.md) | Adapters and the Compatibility Suite |
+| [0013](rfcs/0013-versioning-and-overrides.md) | Versioned Iteration: Descriptors, Overrides, and Experiments |
+| [0014](rfcs/0014-evaluation.md) | Evaluation as the Control Loop |
+
+______________________________________________________________________
+
+## 9. Appendix: The Boundary Diagram
 
 ```text
 +------------------------------------------------------------------+
@@ -360,6 +429,8 @@ ______________________________________________________________________
 | - Policies: declarative invariants, fail-closed explanations     |
 | - Feedback: trajectory guidance and completion gates             |
 | - State contract: typed events, reducers, snapshots, run records |
+| - Versioned iteration: hash-anchored overrides, experiments      |
+| - Evaluation contract: typed samples, behavioral evaluators      |
 |                                                                  |
 | Reviewable and testable without a harness.                       |
 +------------------------------+-----------------------------------+
