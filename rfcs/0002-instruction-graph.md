@@ -69,7 +69,7 @@ tension:
   variant for sections carrying no capabilities). Expansion interrupts the
   current evaluation, applies a visibility override to run state, and
   re-renders; the loop MUST be bounded.
-- Expansion state lives on the transcript (RFC-0006), so run records show
+- Expansion state lives on the ledger (RFC-0006), so run records show
   exactly which parts of the definition the agent had revealed at each point.
 
 The author gets a dial: everything co-located and reviewable, context spent

@@ -46,7 +46,7 @@ not the tool.
 
 Handlers receive their dependencies through an injected context, never
 ambient globals: the workspace facets (RFC-0007), resolved capabilities
-(RFC-0008), the transcript for dispatching typed events (RFC-0006), the
+(RFC-0008), the ledger for dispatching typed events (RFC-0006), the
 envelope — deadline, budget tracker, and a heartbeat to beat during long
 operations (RFC-0009) — and correlation identifiers (RFC-0011).
 
@@ -66,9 +66,9 @@ Every call follows one canonical sequence:
 6. **Execute** the handler.
 7. On success: **commit**, notify policies, run feedback providers
    (RFC-0005). On failure: **restore** the snapshot — the attempt remains on
-   the transcript, but no effect survives in state or workspace.
+   the ledger, but no effect survives in state or workspace.
 8. **Record** the invocation — parameters, outcome, correlation id — on the
-   transcript.
+   ledger.
 
 The transaction boundary is the (state, workspace) pair. External systems a
 tool touches cannot be rolled back by the library. Tools SHOULD be idempotent
@@ -98,8 +98,8 @@ record while keeping the model-facing message actionable.
 - **Exception-driven control flow.** Expected conditions (file missing, no
   matches) are structured results, not exceptions — exceptions rob the model
   of legible feedback.
-- **Hidden effects.** Mutating state outside the transcript or writing
-  outside the workspace facets breaks the transaction and the audit trail.
+- **Hidden effects.** Mutating state outside the ledger or writing outside
+  the workspace facets breaks the transaction and the audit trail.
 - **Harness sniffing.** Handlers branching on the detected runtime destroy
   portability exactly where it matters most.
 
@@ -112,5 +112,5 @@ An adapter certification suite MUST assert, on every harness:
   (snapshot restore verified against both).
 - Policy denials reach the model as structured failures with the reason,
   without handler execution.
-- Every invocation lands on the transcript with a correlatable call id.
+- Every invocation lands on the ledger with a correlatable call id.
 - Argument validation rejects unknown fields identically.

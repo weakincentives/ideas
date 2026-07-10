@@ -59,7 +59,7 @@ tag falls back to source, loudly.
 An **experiment** is an immutable named value: an overrides tag plus typed
 feature flags, with sentinel baseline/control experiments anchoring
 comparisons. Requests carry an experiment; the run resolves its variant from
-it, records it on the transcript and in the run record, and reports it in
+it, records it on the ledger and in the run record, and reports it in
 results. Flags parameterize definition-level choices — read by the
 definition, never silently by the control plane. The experiment is the *only*
 sanctioned mechanism for running the same agent differently in parallel;
@@ -98,5 +98,5 @@ An adapter certification suite MUST assert:
 - The same definition with the same tag renders identically on every harness.
 - A stale override is excluded on every harness, with the exclusion visible
   in the run record.
-- Experiment identity flows unchanged from request to transcript to results
-  to run record.
+- Experiment identity flows unchanged from request to ledger to results to
+  run record.

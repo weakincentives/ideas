@@ -8,7 +8,7 @@
 
 Every run must explain itself after the fact, to someone who wasn't there,
 without the process that produced it. The **run record** is that explanation:
-a self-contained, integrity-checked archive of one run — the transcript
+a self-contained, integrity-checked archive of one run — the ledger
 (RFC-0006), state snapshots, configuration, environment, metrics, and
 workspace — designed to be **queried** with standard tooling, because its
 most important reader is a program, increasingly another agent.
@@ -24,8 +24,8 @@ is programmatic analysis, with humans dropping in at the anomalies.
 
 ## Contents
 
-A record contains, at minimum: the request and response; the full transcript;
-state snapshots before and after; the definition's identity and version — tag,
+A record contains, at minimum: the request and response; the full ledger,
+from which the transcript view derives; state snapshots before and after; the definition's identity and version — tag,
 resolved overrides, experiment (RFC-0013); the adapter and its declared
 capabilities (RFC-0012); the declared and effective environment posture
 (RFC-0007); the envelope and its consumption (RFC-0009); the error, if any,
@@ -65,9 +65,9 @@ its own record.
 ## Queryability
 
 A record MUST answer structured questions with a standard query language and
-no custom parsers: schema discovery, then queries over transcript entries,
-tool calls, errors, state slices (each typed slice as its own relation),
-configuration, and metrics. Typed events make this cheap — the schema falls
+no custom parsers: schema discovery, then queries over ledger events, the
+transcript view, tool calls, errors, state slices (each typed slice as its
+own relation), configuration, and metrics. Typed events make this cheap — the schema falls
 out of the types. The query surface is the natural interface for **analysis
 agents** (RFC-0014): an agent with a run record and a query tool can
 investigate failures at fleet scale, which makes stable schemas and
@@ -90,8 +90,8 @@ discoverability hard requirements, not polish.
 An adapter certification suite MUST assert:
 
 - Records verify against their manifests on every harness.
-- The transcript extracted from a record equals the transcript emitted during
-  the run.
+- The ledger archived in a record equals the ledger emitted during the run,
+  and the transcript view regenerates from it identically.
 - Definition identity, adapter capabilities, envelope consumption, and
   correlation identities are present and correct.
 - Induced capture failures degrade the record without failing the run.

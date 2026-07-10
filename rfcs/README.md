@@ -15,7 +15,7 @@ and the principles; these RFCs turn them into testable commitments.
 
 1. **The definition** — the portable, reviewable artifact specifying what the
    agent *is*: instruction graph, tools, policies, feedback and completion,
-   and the transcript-and-state contract.
+   and the event ledger.
 2. **The control plane** — the contracts that make unattended delegation
    safe: environment, capabilities, the execution envelope, work
    distribution, the run record, adapter certification, versioned iteration,
@@ -32,7 +32,7 @@ and the principles; these RFCs turn them into testable commitments.
 | [0003](0003-tools.md) | Tools: The Transactional Side-Effect Boundary | definition |
 | [0004](0004-policies.md) | Policies: Declarative Invariants over Workflows | definition |
 | [0005](0005-feedback-and-completion.md) | Feedback and Completion Gates | definition |
-| [0006](0006-transcript-and-state.md) | The Transcript and State | definition |
+| [0006](0006-event-ledger.md) | The Event Ledger | definition |
 | [0007](0007-workspace.md) | Workspace, Sandbox, and Egress | environment |
 | [0008](0008-capabilities-and-time.md) | Capabilities, Resources, and Injected Time | environment |
 | [0009](0009-execution-envelope.md) | The Execution Envelope | control plane |
@@ -45,7 +45,7 @@ and the principles; these RFCs turn them into testable commitments.
 Read 0001 first; it frames everything and hoists the shared motivation so the
 others don't repeat it. The definition ring (0002–0006) builds in order: the
 graph carries tools, tools are gated by policies, feedback and completion
-observe the trajectory, and everything lands on the transcript. The
+observe the trajectory, and everything lands on the ledger. The
 environment RFCs (0007–0008) fix what definitions may assume about the world.
 The control-plane RFCs (0009–0014) can be read in any order; 0012 references
 everything else.
@@ -73,9 +73,15 @@ Design forks resolved so far, folded into the RFCs as normative text:
    tools are policy-gated via pre-action hooks with the same
    check/observe/deny-with-reason semantics; harnesses without an
    interception point declare the capability absent.
-2. **The transcript is the substrate** (0006, 0011). One append-only stream
-   per run; conversation, state, and metrics are views. Definition-plane
-   appends are authoritative; harness mirroring is best-effort.
+2. **The ledger is the substrate; the transcript is a view** (0006, 0011,
+   0012). One append-only, high-granularity stream per run records everything
+   — conversation, guardrail decisions, state transitions, operational
+   signals. The transcript — what the model saw and did — is a deterministic
+   projection of it and the compatibility oracle; state slices and metrics
+   are other views, and not every state transition appears in the transcript.
+   Definition-plane appends are authoritative; harness mirroring is
+   best-effort. (Supersedes the earlier resolution that made the transcript
+   itself the substrate.)
 3. **Failure semantics belong to the definition** (0010, 0012). Retriability
    and dead-letter classes are declared against the typed error taxonomy;
    adapter error translation makes them portable; deployment owns mechanics.
@@ -96,8 +102,9 @@ Design forks resolved so far, folded into the RFCs as normative text:
 | Tool | A typed, transactional side-effect boundary (0003) |
 | Policy | A fail-closed invariant gating actions (0004) |
 | Completion gate | A check blocking termination until success criteria hold (0005) |
-| Transcript | The run's single append-only event stream; the substrate all views derive from (0006) |
-| Slice | A typed state view folded from the transcript by pure reducers (0006) |
+| Ledger | The run's single append-only, high-granularity event stream; the substrate all views derive from (0006) |
+| Transcript | The view of what the model saw and did, projected deterministically from the ledger; the compatibility oracle (0006) |
+| Slice | A typed state view folded from the ledger by pure reducers (0006) |
 | Workspace | The environment the agent acts on, declared as data (0007) |
 | Envelope | The time, budget, and liveness bounds on one run (0009) |
 | Run record | The self-contained, queryable artifact explaining one run (0011) |

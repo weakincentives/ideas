@@ -41,7 +41,7 @@ compose with all-of/any-of logic.
 **Behavioral evaluators** additionally receive read access to the run's state
 views (RFC-0006) and assert on trajectory: a tool was or wasn't called, call
 counts fall in range, no tool failed, token usage stayed under a bound, a
-predicate holds over a typed slice. This is the payoff of the transcript
+predicate holds over a typed slice. This is the payoff of the ledger
 contract — behavior is data, so behavior is assertable with zero added
 instrumentation. Without it, degenerate passes go undetected: an agent that
 hardcodes the expected answer or skips verification looks identical to a good

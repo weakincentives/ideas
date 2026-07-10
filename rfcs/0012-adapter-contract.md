@@ -35,7 +35,7 @@ policy gates, feedback injection, and completion gates to the harness's hook
 or continuation mechanism — including routing native harness actions through
 policy checks where an interception point exists (RFC-0004). Run the harness
 against the materialized workspace (RFC-0007). Translate the native stream
-into canonical transcript entries (RFC-0006). Normalize every harness failure
+into canonical ledger events (RFC-0006). Normalize every harness failure
 into the library's typed error taxonomy with phase attribution — load-bearing
 encapsulation, since definitions declare failure semantics against that
 taxonomy (RFC-0010). Parse structured output through the library.
@@ -69,7 +69,7 @@ Adapters declare support against a tiered vocabulary:
 | Tier | Contents |
 | --- | --- |
 | Core | Evaluation, tool bridging, structured output |
-| Observability | Transcript emission, canonical events |
+| Observability | Canonical ledger events, transcript emission |
 | Semantics | Transactions, disclosure, envelope enforcement |
 | Guardrails | Policy gating (definition and native actions), feedback, completion gates |
 | Environment | Sandbox posture, egress policy, isolation, knowledge mounting |
@@ -82,9 +82,9 @@ hook that can only deny silently does not earn the flag.
 
 **The floor.** An integration MUST support Core plus transcript emission to
 be called an adapter at all. Below the floor it is not certifiable and no
-portability claim applies: the transcript is both the substrate for state and
-the suite's oracle, and an integration that cannot emit it cannot be reasoned
-about.
+portability claim applies: the transcript view is the suite's oracle and the
+minimum observability an operator needs — an integration that cannot produce
+it cannot be compared or debugged.
 
 ## The suite
 
@@ -94,11 +94,13 @@ about.
 - **Capability gating, skip-don't-fail.** Undeclared capabilities skip
   visibly; an unavailable harness skips entirely. A sea of skips is itself
   information.
-- **The transcript is the oracle.** Scenarios assert on canonical entry-type
-  sequences — the strongest adapter-agnostic evidence that the same thing
-  happened. Suites MUST NOT assert on model prose quality; separating "the
-  adapter works" from "the model did well" is what keeps conformance
-  deterministic enough for CI. Model quality is evaluation's job (RFC-0014).
+- **The transcript is the oracle.** Scenarios assert on the transcript view —
+  what the model saw and did — the strongest adapter-agnostic evidence that
+  the same thing happened; full-ledger granularity may legitimately differ
+  across harnesses (RFC-0006). Suites MUST NOT assert on model prose quality;
+  separating "the adapter works" from "the model did well" is what keeps
+  conformance deterministic enough for CI. Model quality is evaluation's job
+  (RFC-0014).
 - **Determinism discipline.** Scenario prompts minimize nondeterminism;
   where harness behavior still varies, scenarios assert invariants —
   ordering, envelope, rollback — not exact counts.
@@ -111,8 +113,9 @@ transactional rollback observed through state and workspace; policy denial
 delivery, including native-action gating where declared; error-taxonomy
 normalization (the same induced failure classifies identically); feedback
 delivery and recording; completion blocking, passing, and envelope bypass;
-deadline and budget checkpoints; transcript envelope, ordering, vocabulary;
-run-record integrity; and environment posture where declared.
+deadline and budget checkpoints; ledger envelope, ordering, and vocabulary;
+transcript-view parity; run-record integrity; and environment posture where
+declared.
 
 ## Anti-patterns
 

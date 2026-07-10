@@ -37,7 +37,7 @@ A policy is a named object with two duties:
 - **check(action, parameters, context) → decision** — before a gated action
   executes. The decision is a boolean **plus a reason**: what invariant
   failed and, ideally, what would satisfy it. The reason reaches the model as
-  the action's structured failure (RFC-0003) and lands on the transcript.
+  the action's structured failure (RFC-0003) and lands on the ledger.
 - **observe(action, parameters, result, context)** — after an action commits,
   so the policy can update its tracked state.
 
@@ -50,7 +50,7 @@ Normative properties:
    model nothing and produces thrashing.
 3. **Conjunction.** Multiple policies may govern one action; all must allow,
    and each MUST be evaluable in isolation.
-4. **State on the transcript.** Policy state lives in state slices (RFC-0006)
+4. **State on the ledger.** Policy state lives in state slices (RFC-0006)
    — inspectable in run records, rewound by transaction rollback, never
    hidden in policy-object fields. A rolled-back action never updates policy
    state, so retries re-face the same gates.

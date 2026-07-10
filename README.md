@@ -56,10 +56,12 @@ turns it into specific, testable contracts.
    changes capabilities outside review: rendering the definition *is* the
    capability set.
 
-6. **One stream.** Everything that happens is an event on the transcript —
-   one append-only stream per run. State, conversation, and metrics are views
-   of it; new audiences get new views, not new logs. History cannot be
-   erased, only views rewound.
+6. **One ledger.** Everything that happens is a typed event on one
+   append-only, high-granularity ledger. State, the transcript — what the
+   model saw and did — and metrics are views folded from it; new audiences
+   get new views, not new logs. Not every state transition appears in the
+   transcript; nothing escapes the ledger. History cannot be erased, only
+   views rewound.
 
 7. **Effects are transactions.** Every tool call commits atomically or leaves
    no trace in state or workspace. Failures return to the model as structured
@@ -127,8 +129,10 @@ exact tool set the agent has. *Tools* are the typed, transactional
 side-effect boundary. *Policies* are fail-closed invariants gating every
 action — including the harness's native tools. *Feedback and completion*
 steer the trajectory and gate termination against the definition's own
-success criteria. The *transcript and state* contract records every event on
-one append-only stream and folds typed state views from it.
+success criteria. The *event ledger* records everything on one append-only,
+high-granularity stream and folds views from it — typed state for the
+definition, and the transcript of what the model saw and did for review and
+certification.
 
 **The control plane** (RFCs 0007–0014) is the set of contracts that make
 unattended delegation safe, independent of which harness provides the
@@ -177,7 +181,7 @@ was all along.
 | [0003](rfcs/0003-tools.md) | Tools: The Transactional Side-Effect Boundary |
 | [0004](rfcs/0004-policies.md) | Policies: Declarative Invariants over Workflows |
 | [0005](rfcs/0005-feedback-and-completion.md) | Feedback and Completion Gates |
-| [0006](rfcs/0006-transcript-and-state.md) | The Transcript and State |
+| [0006](rfcs/0006-event-ledger.md) | The Event Ledger |
 | [0007](rfcs/0007-workspace.md) | Workspace, Sandbox, and Egress |
 | [0008](rfcs/0008-capabilities-and-time.md) | Capabilities, Resources, and Injected Time |
 | [0009](rfcs/0009-execution-envelope.md) | The Execution Envelope |
@@ -194,7 +198,7 @@ was all along.
 | DEFINITION — authored, versioned, portable                       |
 |                                                                  |
 |   instruction graph · tools · policies                           |
-|   feedback & completion gates · transcript & state               |
+|   feedback & completion gates · event ledger                     |
 |                                                                  |
 |   Reviewable and testable without a harness.                     |
 +------------------------------------------------------------------+

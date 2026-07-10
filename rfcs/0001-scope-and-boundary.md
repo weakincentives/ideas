@@ -43,7 +43,7 @@ do not re-argue them.
 | Tools | The typed, transactional side-effect boundary | 0003 |
 | Policies | Invariants that gate actions, fail closed | 0004 |
 | Feedback & completion | Trajectory steering and termination gates | 0005 |
-| Transcript & state | One event stream per run; state as views over it | 0006 |
+| Event ledger | One high-granularity stream; state and transcript as views | 0006 |
 
 The definition MUST be constructible, renderable, and testable without a
 harness and without a model call. A definition that needs a live runtime to

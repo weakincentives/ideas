@@ -40,7 +40,7 @@ Semantics:
 3. **All matching providers run.** Simultaneous triggers all fire and deliver
    together, each attributed to its provider. First-match-wins silently drops
    guidance.
-4. **Recorded.** Every delivery lands on the transcript — this is how
+4. **Recorded.** Every delivery lands on the ledger — this is how
    per-provider cadence works and how run records show what the agent was
    told and when.
 5. **Marked.** Feedback is delivered as feedback, attributed, so the model
